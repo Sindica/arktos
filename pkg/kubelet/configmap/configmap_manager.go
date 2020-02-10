@@ -138,7 +138,7 @@ func NewWatchingConfigMapManager(kubeClient clientset.Interface) Manager {
 	listConfigMap := func(namespace string, opts metav1.ListOptions) (runtime.Object, error) {
 		return kubeClient.CoreV1().ConfigMaps(namespace).List(opts)
 	}
-	watchConfigMap := func(namespace string, opts metav1.ListOptions) (watch.Interface, error) {
+	watchConfigMap := func(namespace string, opts metav1.ListOptions) watch.AggregatedWatchInterface {
 		return kubeClient.CoreV1().ConfigMaps(namespace).Watch(opts)
 	}
 	newConfigMap := func() runtime.Object {

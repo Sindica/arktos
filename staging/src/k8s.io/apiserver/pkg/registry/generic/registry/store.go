@@ -1203,7 +1203,10 @@ func (e *Store) Watch(ctx context.Context, options *metainternalversion.ListOpti
 func (e *Store) WatchPredicate(ctx context.Context, p storage.SelectionPredicate, resourceVersion string) (watch.Interface, error) {
 	if name, ok := p.MatchesSingle(); ok {
 		if key, err := e.KeyFunc(ctx, name); err == nil {
-			w, err := e.Storage.Watch(ctx, key, resourceVersion, p)
+			aw := e.Storage.Watch(ctx, key, resourceVersion, p)
+
+			// TODO - currently api server has one ETCD to watch
+			w, err := aw.GetWatcher(0)
 			if err != nil {
 				return nil, err
 			}
@@ -1216,7 +1219,8 @@ func (e *Store) WatchPredicate(ctx context.Context, p storage.SelectionPredicate
 		// optimization is skipped
 	}
 
-	w, err := e.Storage.WatchList(ctx, e.KeyRootFunc(ctx), resourceVersion, p)
+	aw := e.Storage.WatchList(ctx, e.KeyRootFunc(ctx), resourceVersion, p)
+	w, err := aw.GetWatcher(0)
 	if err != nil {
 		return nil, err
 	}

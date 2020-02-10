@@ -138,7 +138,7 @@ func NewWatchingSecretManager(kubeClient clientset.Interface) Manager {
 	listSecret := func(namespace string, opts metav1.ListOptions) (runtime.Object, error) {
 		return kubeClient.CoreV1().Secrets(namespace).List(opts)
 	}
-	watchSecret := func(namespace string, opts metav1.ListOptions) (watch.Interface, error) {
+	watchSecret := func(namespace string, opts metav1.ListOptions) watch.AggregatedWatchInterface {
 		return kubeClient.CoreV1().Secrets(namespace).Watch(opts)
 	}
 	newSecret := func() runtime.Object {

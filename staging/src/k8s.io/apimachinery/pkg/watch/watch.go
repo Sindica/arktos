@@ -1,5 +1,6 @@
 /*
 Copyright 2014 The Kubernetes Authors.
+Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@ limitations under the License.
 package watch
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 
@@ -35,6 +37,107 @@ type Interface interface {
 	// or Stop() is called, this channel will be closed, in which case the
 	// watch should be completely cleaned up.
 	ResultChan() <-chan Event
+}
+
+type AggregatedWatchInterface interface {
+	Stop()
+	ResultChan() <-chan Event
+
+	AddWatchInterface(Interface, error)
+	UpdateWatcher(int, Interface, error) error
+	GetWatcher(int) (Interface, error)
+	GetErrors() []error
+	GetFirstError() error
+	GetWatchers() []Interface
+}
+
+type AggregatedWatcher struct {
+	watchers []Interface
+	errs    []error
+	aggChan chan Event
+}
+
+func NewAggregatedWatcher() *AggregatedWatcher {
+	a := &AggregatedWatcher{
+		watchers: make([]Interface, 0),
+		errs:    make([]error, 0),
+		aggChan: make(chan Event),
+	}
+
+	return a
+}
+
+func CreateNilWatcherWithError(err error) *AggregatedWatcher {
+	a := NewAggregatedWatcher()
+	a.AddWatchInterface(nil, err)
+	return a
+}
+
+func (a *AggregatedWatcher) AddWatchInterface(watcher Interface, err error) {
+	a.watchers = append(a.watchers, watcher)
+	a.errs = append(a.errs, err)
+	go func(w Interface) {
+		for {
+			select {
+			case signal, ok := <-watcher.ResultChan():
+				if !ok {
+					klog.Error("watch channel closed.")
+					return
+				} else {
+					klog.V(3).Infof("Get event %v", signal)
+				}
+
+				a.aggChan <- signal
+			}
+		}
+	}(watcher)
+}
+
+func (a *AggregatedWatcher) Stop() {
+	for _, watcher := range a.watchers {
+		watcher.Stop()
+	}
+}
+
+func (a *AggregatedWatcher) ResultChan() <-chan Event {
+	return a.aggChan
+}
+
+func (a *AggregatedWatcher) GetErrors() []error {
+	return a.errs
+}
+
+// Tmp solution for client can handles only 1 error
+func (a *AggregatedWatcher) GetFirstError() error {
+	for _, err := range a.errs {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (a *AggregatedWatcher) GetWatchers() []Interface {
+	return a.watchers
+}
+
+func (a *AggregatedWatcher) UpdateWatcher(pos int, watcher Interface, err error) error {
+	if pos >=0 && pos < len(a.watchers) {
+		a.watchers[pos] = watcher
+		a.errs[pos] = err
+		return nil
+	}
+
+	return errors.New("Invalid position for watcher")
+}
+
+func (a *AggregatedWatcher) GetWatcher(pos int) (Interface, error) {
+	if pos >=0 && pos < len(a.watchers) {
+		return a.watchers[pos], a.errs[pos]
+	}
+
+	return nil, nil
 }
 
 // EventType defines the possible types of events.

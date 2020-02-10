@@ -195,7 +195,7 @@ func (o *RolloutStatusOptions) Run() error {
 			options.FieldSelector = fieldSelector
 			return o.DynamicClient.Resource(info.Mapping.Resource).Namespace(info.Namespace).List(options)
 		},
-		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+		WatchFunc: func(options metav1.ListOptions) watch.AggregatedWatchInterface {
 			options.FieldSelector = fieldSelector
 			return o.DynamicClient.Resource(info.Mapping.Resource).Namespace(info.Namespace).Watch(options)
 		},
