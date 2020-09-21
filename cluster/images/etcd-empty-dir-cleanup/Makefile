@@ -15,7 +15,7 @@
 
 .PHONY:	build push
 
-ETCD_VERSION = 3.4.5.1
+ETCD_VERSION = 3.4.5
 # Image should be pulled from k8s.gcr.io, which will auto-detect
 # region (us, eu, asia, ...) and pull from the closest.
 REGISTRY? = gcr.io
