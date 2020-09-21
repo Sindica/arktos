@@ -41,7 +41,7 @@ ETCD_BRANCH?=release-3.4-ETCDPartition-RevGeneration
 REVISION?=1
 
 # IMAGE_TAG Uniquely identifies k8s.gcr.io/etcd docker image with a tag of the form "<etcd-version>-<revision>".
-IMAGE_TAG=$(LATEST_ETCD_VERSION)
+IMAGE_TAG=$(LATEST_ETCD_VERSION).$(REVISION)
 
 ARCH?=amd64
 ALL_ARCH = amd64 arm arm64 ppc64le s390x
