@@ -43,7 +43,7 @@ set -o nounset
 
 # NOTE: BUNDLED_VERSION has to match release binaries present in the
 # etcd image (to make this script work correctly).
-BUNDLED_VERSIONS="3.0.17, 3.1.12, 3.2.24, 3.3.17, 3.4.3"
+BUNDLED_VERSIONS="3.4.4-perf.1"
 
 ETCD_NAME="${ETCD_NAME:-etcd-$(hostname)}"
 if [ -z "${DATA_DIRECTORY:-}" ]; then

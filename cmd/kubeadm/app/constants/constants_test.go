@@ -151,8 +151,8 @@ func TestEtcdSupportedVersion(t *testing.T) {
 		14: "3.3.10",
 		15: "3.3.10",
 		16: "3.3.17-0",
-		17: "3.4.3-0",
-		18: "3.4.3-0",
+		17: "3.4.4-perf.1",
+		18: "3.4.4-perf.1",
 	}
 	var tests = []struct {
 		kubernetesVersion string
@@ -174,7 +174,7 @@ func TestEtcdSupportedVersion(t *testing.T) {
 		},
 		{
 			kubernetesVersion: "1.99.0",
-			expectedVersion:   version.MustParseSemantic("3.4.3-0"),
+			expectedVersion:   version.MustParseSemantic("3.4.4-perf.1"),
 			expectedWarning:   true,
 			expectedError:     false,
 		},
@@ -186,7 +186,7 @@ func TestEtcdSupportedVersion(t *testing.T) {
 		},
 		{
 			kubernetesVersion: "1.17.2",
-			expectedVersion:   version.MustParseSemantic("3.4.3-0"),
+			expectedVersion:   version.MustParseSemantic("3.4.4-perf.1"),
 			expectedWarning:   false,
 			expectedError:     false,
 		},

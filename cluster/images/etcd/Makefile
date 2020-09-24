@@ -26,10 +26,10 @@
 # Except from etcd-$(version) and etcdctl-$(version) binaries, we also
 # need etcd and etcdctl binaries for backward compatibility reasons.
 # That binary will be set to the last version from $(BUNDLED_ETCD_VERSIONS).
-BUNDLED_ETCD_VERSIONS?=3.0.17 3.1.12 3.2.24 3.3.17 3.4.3
+BUNDLED_ETCD_VERSIONS?=3.4.4-perf.1
 
 # LATEST_ETCD_VERSION identifies the most recent etcd version available.
-LATEST_ETCD_VERSION?=3.4.3
+LATEST_ETCD_VERSION?=3.4.4-perf.1
 
 # REVISION provides a version number fo this image and all it's bundled
 # artifacts. It should start at zero for each LATEST_ETCD_VERSION and increment
@@ -37,7 +37,7 @@ LATEST_ETCD_VERSION?=3.4.3
 REVISION?=0
 
 # IMAGE_TAG Uniquely identifies k8s.gcr.io/etcd docker image with a tag of the form "<etcd-version>-<revision>".
-IMAGE_TAG=$(LATEST_ETCD_VERSION)-$(REVISION)
+IMAGE_TAG=$(LATEST_ETCD_VERSION)
 
 ARCH?=amd64
 ALL_ARCH = amd64 arm arm64 ppc64le s390x
