@@ -43,14 +43,11 @@ ARCH?=amd64
 ALL_ARCH = amd64 arm arm64 ppc64le s390x
 # Image should be pulled from k8s.gcr.io, which will auto-detect
 # region (us, eu, asia, ...) and pull from the closest.
-REGISTRY?=k8s.gcr.io
+REGISTRY?=gcr.io
 # Images should be pushed to staging-k8s.gcr.io.
-PUSH_REGISTRY?=staging-k8s.gcr.io
+PUSH_REGISTRY?=gcr.io
 
-MANIFEST_IMAGE := $(PUSH_REGISTRY)/etcd
-
-# Install binaries matching base distro permissions
-BIN_INSTALL := install -m 0555
+MANIFEST_IMAGE := etcd
 
 # Hosts running SELinux need :z added to volume mounts
 SELINUX_ENABLED := $(shell cat /sys/fs/selinux/enforce 2> /dev/null || echo 0)
@@ -83,15 +80,10 @@ ifeq ($(ARCH),s390x)
 endif
 
 build:
-	# Explicitly copy files to the temp directory
-	$(BIN_INSTALL) migrate-if-needed.sh $(TEMP_DIR)
-	install Dockerfile $(TEMP_DIR)
+	# Copy the content in this dir to the temp dir,
+	# without copying the subdirectories.
+	find ./ -maxdepth 1 -type f | xargs -I {} cp {} $(TEMP_DIR)
 
-	# Compile migrate
-	migrate_tmp_dir=$(shell mktemp -d); \
-	docker run --interactive -v $(shell pwd)/../../../:/go/src/k8s.io/kubernetes$(DOCKER_VOL_OPTS) -v $${migrate_tmp_dir}:/build$(DOCKER_VOL_OPTS) -e GOARCH=$(ARCH) golang:$(GOLANG_VERSION) \
-		/bin/bash -c "CGO_ENABLED=0 go build -o /build/migrate k8s.io/kubernetes/cluster/images/etcd/migrate"; \
-	$(BIN_INSTALL) $${migrate_tmp_dir}/migrate $(TEMP_DIR)
 
 ifeq ($(ARCH),amd64)
 
@@ -99,36 +91,36 @@ ifeq ($(ARCH),amd64)
 	# For each release create a tmp dir 'etcd_release_tmp_dir' and unpack the release tar there.
 	for version in $(BUNDLED_ETCD_VERSIONS); do \
 		etcd_release_tmp_dir=$(shell mktemp -d); \
-		curl -sSL --retry 5 https://github.com/coreos/etcd/releases/download/v$$version/etcd-v$$version-linux-amd64.tar.gz | tar -xz -C $$etcd_release_tmp_dir --strip-components=1; \
-		$(BIN_INSTALL) $$etcd_release_tmp_dir/etcd $$etcd_release_tmp_dir/etcdctl $(TEMP_DIR)/; \
-		$(BIN_INSTALL) $(TEMP_DIR)/etcd $(TEMP_DIR)/etcd-$$version; \
-		$(BIN_INSTALL) $(TEMP_DIR)/etcdctl $(TEMP_DIR)/etcdctl-$$version; \
+		curl -sSL --retry 5 https://github.com/futurewei-cloud/etcd/releases/download/v$$version/etcd-v$$version-linux-amd64.tar.gz | tar -xz -C $$etcd_release_tmp_dir --strip-components=1; \
+		cp $$etcd_release_tmp_dir/etcd $$etcd_release_tmp_dir/etcdctl $(TEMP_DIR)/; \
+		cp $(TEMP_DIR)/etcd $(TEMP_DIR)/etcd-$$version; \
+		cp $(TEMP_DIR)/etcdctl $(TEMP_DIR)/etcdctl-$$version; \
 	done
 else
 
 	# Download etcd in a golang container and cross-compile it statically
 	# For each release create a tmp dir 'etcd_release_tmp_dir' and unpack the release tar there.
 	arch_prefix=""
-        ifeq ($(ARCH),arm)
+	ifeq ($(ARCH),arm)
 		arch_prefix="GOARM=$(GOARM)"
-        endif
+	endif
 
 	# use '/go/src/go.etcd.io/etcd' to build etcd 3.4 and later.
 	for version in $(BUNDLED_ETCD_VERSIONS); do \
 		etcd_release_tmp_dir=$(shell mktemp -d); \
 		etcd_build_dir="/go/src/github.com/coreos/etcd"; \
 		if [ $$(echo $$version | cut -d. -f2) -gt 3 ]; then \
-			etcd_build_dir="/go/src/go.etcd.io/etcd"; \
+				etcd_build_dir="/go/src/go.etcd.io/etcd"; \
 		fi; \
 		docker run --interactive -v $${etcd_release_tmp_dir}:/etcdbin golang:$(GOLANG_VERSION)$(DOCKER_VOL_OPTS) /bin/bash -c \
-			"git clone https://github.com/coreos/etcd $$etcd_build_dir \
-			&& cd $$etcd_build_dir \
-			&& git checkout v$${version} \
-			&& $(arch_prefix) GOARCH=$(ARCH) ./build \
-			&& cp -f bin/$(ARCH)/etcd* bin/etcd* /etcdbin; echo 'done'"; \
-		$(BIN_INSTALL) $$etcd_release_tmp_dir/etcd $$etcd_release_tmp_dir/etcdctl $(TEMP_DIR)/; \
-		$(BIN_INSTALL) $(TEMP_DIR)/etcd $(TEMP_DIR)/etcd-$$version; \
-		$(BIN_INSTALL) $(TEMP_DIR)/etcdctl $(TEMP_DIR)/etcdctl-$$version; \
+				"git clone --single-branch --branch $(ETCD_BRANCH) https://github.com/futurewei-cloud/etcd.git $$etcd_build_dir \
+				&& cd $$etcd_build_dir \
+				&& git checkout v$${version} \
+				&& $(arch_prefix) GOARCH=$(ARCH) ./build \
+				&& cp -f bin/$(ARCH)/etcd* bin/etcd* /etcdbin; echo 'done'"; \
+		cp $$etcd_release_tmp_dir/etcd $$etcd_release_tmp_dir/etcdctl $(TEMP_DIR)/; \
+		cp $(TEMP_DIR)/etcd $(TEMP_DIR)/etcd-$$version; \
+		cp $(TEMP_DIR)/etcdctl $(TEMP_DIR)/etcdctl-$$version; \
 	done
 
 	# Add this ENV variable in order to workaround an unsupported arch blocker
@@ -138,15 +130,10 @@ else
 	cd $(TEMP_DIR) && echo "ENV ETCD_UNSUPPORTED_ARCH=$(ARCH)" >> Dockerfile
 endif
 
-	# Replace BASEIMAGE with the real base image
-	cd $(TEMP_DIR) && sed -i.bak 's|BASEIMAGE|$(BASEIMAGE)|g' Dockerfile
-
-	# And build the image
-	docker build --pull -t $(REGISTRY)/etcd-$(ARCH):$(IMAGE_TAG) $(TEMP_DIR)
-
-push: build
-	docker tag $(REGISTRY)/etcd-$(ARCH):$(IMAGE_TAG) $(MANIFEST_IMAGE)-$(ARCH):$(IMAGE_TAG)
-	docker push $(MANIFEST_IMAGE)-$(ARCH):$(IMAGE_TAG)
+push: 
+	docker build --pull -t $(REGISTRY)/etcd-$(ARCH):$(IMAGE_TAG)  .
+	docker tag $(REGISTRY)/etcd-$(ARCH):$(IMAGE_TAG) $(REGISTRY)/$(MANIFEST_IMAGE)-$(ARCH):$(IMAGE_TAG)
+	docker push $(REGISTRY)/$(MANIFEST_IMAGE)-$(ARCH):$(IMAGE_TAG)
 
 sub-build-%:
 	$(MAKE) ARCH=$* build

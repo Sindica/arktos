@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM BASEIMAGE
+FROM ubuntu:16.04 
 
 EXPOSE 2379 2380 4001 7001
 COPY etcd* etcdctl* /usr/local/bin/
