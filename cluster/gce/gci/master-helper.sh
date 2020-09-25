@@ -36,9 +36,13 @@ function create-master-instance {
   local internal_address=""
   [[ -n ${2:-} ]] && internal_address="${2}"
 
+  echo "Ying Creating master instance ... starting write master env"
   write-master-env
+  echo "Ying Creating master instance ... starting ensure gci metadata files"
   ensure-gci-metadata-files
+  echo "Ying Creating master instance ... starting create master instance internal"
   create-master-instance-internal "${MASTER_NAME}" "${address}" "${internal_address}"
+  echo "Ying Creating master instance ... done"
 }
 
 function replicate-master-instance() {

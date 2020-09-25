@@ -2765,6 +2765,7 @@ function create-master() {
   create-etcd-certs ${MASTER_NAME}
   create-etcd-apiserver-certs "etcd-${MASTER_NAME}" ${MASTER_NAME}
 
+  echo "Ying successfully created etcd certs, starting create-master-instance............"
   if [[ "$(get-num-nodes)" -ge "50" ]]; then
     # We block on master creation for large clusters to avoid doing too much
     # unnecessary work in case master start-up fails (like creation of nodes).
