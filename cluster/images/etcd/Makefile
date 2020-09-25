@@ -64,7 +64,7 @@ GOARM?=7
 TEMP_DIR:=$(shell mktemp -d)
 
 ifeq ($(ARCH),amd64)
-    BASEIMAGE?=us.gcr.io/k8s-artifacts-prod/build-image/debian-base:v2.1.0
+    BASEIMAGE?=k8s.gcr.io/debian-base:v1.0.0
 endif
 ifeq ($(ARCH),arm)
     BASEIMAGE?=us.gcr.io/k8s-artifacts-prod/build-image/debian-base-arm:v2.1.0
