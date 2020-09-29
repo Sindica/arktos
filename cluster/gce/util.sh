@@ -25,6 +25,7 @@ KUBE_ROOT=$(dirname "${BASH_SOURCE}")/../..
 source "${KUBE_ROOT}/cluster/gce/${KUBE_CONFIG_FILE-"config-default.sh"}"
 source "${KUBE_ROOT}/cluster/common.sh"
 source "${KUBE_ROOT}/hack/lib/util.sh"
+source "${KUBE_ROOT}/hack/lib/etcd.sh"
 
 if [[ "${NODE_OS_DISTRIBUTION}" == "gci" || "${NODE_OS_DISTRIBUTION}" == "ubuntu" || "${NODE_OS_DISTRIBUTION}" == "custom" ]]; then
   source "${KUBE_ROOT}/cluster/gce/${NODE_OS_DISTRIBUTION}/node-helper.sh"
@@ -2265,6 +2266,9 @@ function kube-up() {
 
   # Make sure we have the tar files staged on Google Storage
   find-release-tars
+  registry-authentication
+  create-and-upload-etcd-image
+  create-and-upload-etcd-empty-dir-cleanup-image
   upload-tars
 
   # ensure that environmental variables specifying number of migs to create
@@ -3886,6 +3890,43 @@ function delete-apiserver() {
         --quiet \
         --project "${PROJECT}" \
         --region "${REGION}" 
+    fi
+
+  done
+}
+
+
+function delete-workload-controller() {
+  for num in $(seq ${WORKLOADCONTROLLER_EXTRA_NUM}); do
+    server_name="${CLUSTER_NAME}-workload-controller${num}"
+
+    #echo "deleting additional workload-controller: ${server_name}"
+    if gcloud compute instances describe "${server_name}" --zone "${ZONE}" --project "${PROJECT}" &>/dev/null; then
+        # Now we can safely delete the VM.
+        gcloud compute instances delete \
+          --project "${PROJECT}" \
+          --quiet \
+          --delete-disks all \
+          --zone "${ZONE}" \
+          "${server_name}"
+    fi
+
+    #echo "deleting workload-controller disks: ${server_name}-pd"
+    if gcloud compute disks describe "${server_name}-pd" --zone "${ZONE}" --project "${PROJECT}" &>/dev/null; then
+      gcloud compute disks delete  \
+        --project "${PROJECT}" \
+        --quiet \
+        --zone "${ZONE}" \
+        "${server_name}-pd"
+    fi
+
+    #echo "deleting workload-controller firewall: ${server_name}-https"
+    if gcloud compute firewall-rules describe "${server_name}-https" --network "${NETWORK}" --project "${NETWORK_PROJECT}" &>/dev/null; then
+      gcloud compute firewall-rules delete  \
+        --project "${NETWORK_PROJECT}" \
+        --quiet \
+        --network "${NETWORK}" \
+        "${server_name}-https"
     fi
 
   done
