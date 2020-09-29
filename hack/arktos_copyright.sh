@@ -21,7 +21,7 @@ ARKTOS_COPYRIGHT_LINE_MODIFIED_OTHER="# Copyright 2020 Authors of Arktos - file 
 K8S_COPYRIGHT_MATCH="The Kubernetes Authors"
 ARKTOS_COPYRIGHT_MATCH="Authors of Arktos"
 
-ARKTOS_REPO="https://github.com/futurewei-cloud/arktos"
+ARKTOS_REPO="https://github.com/centaurus-cloud/arktos"
 TMPDIR="/tmp/ArktosCopyright"
 HEADDIRNAME="HEAD"
 REPODIRNAME=$TMPDIR/$HEADDIRNAME
