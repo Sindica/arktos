@@ -88,8 +88,7 @@ type store struct {
 
 	partitionConfigMap map[string]storage.Interval
 
-	mux           sync.Mutex
-	listAppendMux sync.Mutex
+	dataClientMux           sync.Mutex
 }
 
 type objState struct {
@@ -141,8 +140,8 @@ func newStoreWithPartitionConfig(c *clientv3.Client, pagingEnabled bool, codec r
 }
 
 func (s *store) AddDataClient(c *clientv3.Client, clusterId uint8, destroyFunc func()) error {
-	s.mux.Lock()
-	defer s.mux.Unlock()
+	s.dataClientMux.Lock()
+	defer s.dataClientMux.Unlock()
 
 	existingClient, isOK := s.dataClusterClients[clusterId]
 	if isOK {
@@ -166,16 +165,16 @@ func (s *store) AddDataClient(c *clientv3.Client, clusterId uint8, destroyFunc f
 }
 
 func (s *store) UpdateDataClient(c *clientv3.Client, clusterId uint8, destroyFunc func()) error {
-	s.mux.Lock()
+	s.dataClientMux.Lock()
 
 	existingClient, isOK := s.dataClusterClients[clusterId]
 	if !isOK {
-		s.mux.Unlock()
+		s.dataClientMux.Unlock()
 		klog.Warningf("Expected cluster %d not found in data client map. Adding data client %v", clusterId, c.Endpoints())
 		return s.AddDataClient(c, clusterId, destroyFunc)
 	}
 	if reflect.DeepEqual(existingClient.Endpoints(), c.Endpoints()) {
-		s.mux.Unlock()
+		s.dataClientMux.Unlock()
 		klog.Infof("Cluster %d does not have endpoints update. Skip updating. Endpoint %v", clusterId, c.Endpoints())
 		return nil
 	}
@@ -191,13 +190,13 @@ func (s *store) UpdateDataClient(c *clientv3.Client, clusterId uint8, destroyFun
 	s.dataClusterClients[clusterId] = c
 	s.dataClusterDestroyFunc[clusterId] = destroyFunc
 	klog.V(3).Infof("Updated data client for cluster id %d, endpoints [%+v]", clusterId, c.Endpoints())
-	s.mux.Unlock()
+	s.dataClientMux.Unlock()
 	return nil
 }
 
 func (s *store) DeleteDataClient(clusterId uint8) {
-	s.mux.Lock()
-	defer s.mux.Unlock()
+	s.dataClientMux.Lock()
+	defer s.dataClientMux.Unlock()
 
 	client, isOK := s.dataClusterClients[clusterId]
 	if isOK {
@@ -223,9 +222,14 @@ func (s *store) Versioner() storage.Versioner {
 
 // Get implements storage.Interface.Get.
 func (s *store) Get(ctx context.Context, key string, resourceVersion string, out runtime.Object, ignoreNotFound bool) error {
+	trace := utiltrace.New(fmt.Sprintf("Get etcd3: key=%s", key))
+	defer trace.LogIfLong(100 * time.Millisecond)
+
 	key = path.Join(s.pathPrefix, key)
 	startTime := time.Now()
+	trace.Step("Before getClientFromKey")
 	getResp, err := s.getClientFromKey(key).KV.Get(ctx, key, s.getOps...)
+	trace.Step("After getClientFromKey")
 	metrics.RecordEtcdRequestLatency("get", getTypeName(out), startTime)
 	if err != nil {
 		return err
@@ -239,7 +243,10 @@ func (s *store) Get(ctx context.Context, key string, resourceVersion string, out
 	}
 	kv := getResp.Kvs[0]
 
+	trace.Step("Before TransformFromStorage")
 	data, _, err := s.transformer.TransformFromStorage(kv.Value, authenticatedDataString(key))
+	trace.Step("After TransformFromStorage")
+
 	if err != nil {
 		return storage.NewInternalError(err.Error())
 	}
@@ -348,7 +355,7 @@ func (s *store) GuaranteedUpdate(
 	ctx context.Context, key string, out runtime.Object, ignoreNotFound bool,
 	preconditions *storage.Preconditions, tryUpdate storage.UpdateFunc, suggestion ...runtime.Object) error {
 	trace := utiltrace.New(fmt.Sprintf("GuaranteedUpdate etcd3: %s", getTypeName(out)))
-	defer trace.LogIfLong(500 * time.Millisecond)
+	defer trace.LogIfLong(100 * time.Millisecond)
 
 	v, err := conversion.EnforcePtr(out)
 	if err != nil {
@@ -477,7 +484,9 @@ func (s *store) GuaranteedUpdate(
 		}
 		putResp := txnResp.Responses[0].GetResponsePut()
 
-		return decode(s.codec, s.versioner, data, out, putResp.Header.Revision)
+		err = decode(s.codec, s.versioner, data, out, putResp.Header.Revision)
+		trace.Step("After decode, before returning from update")
+		return err
 	}
 }
 
@@ -507,12 +516,18 @@ func (s *store) GetToList(ctx context.Context, key string, resourceVersion strin
 		if err != nil {
 			return storage.NewInternalError(err.Error())
 		}
+		trace.Step("Before appendListItem")
 		if err := appendListItem(v, data, uint64(getResp.Kvs[0].ModRevision), pred, s.codec, s.versioner); err != nil {
 			return err
 		}
+		trace.Step("After appendListItem")
 	}
 	// update version with cluster level revision
-	return s.versioner.UpdateList(listObj, uint64(getResp.Header.Revision), "", nil)
+	trace.Step("Before updateList")
+	err = s.versioner.UpdateList(listObj, uint64(getResp.Header.Revision), "", nil)
+	trace.Step("After updateList")
+
+	return err
 }
 
 func (s *store) Count(key string) (int64, error) {
@@ -618,6 +633,7 @@ func encodeContinue(listResult []listPartitionResult) (string, error) {
 func (s *store) List(ctx context.Context, key, resourceVersion string, pred storage.SelectionPredicate, listObj runtime.Object) error {
 	trace := utiltrace.New(fmt.Sprintf("List etcd3: key=%v, resourceVersion=%s, limit: %d, continue: %s", key, resourceVersion, pred.Limit, pred.Continue))
 	defer trace.LogIfLong(500 * time.Millisecond)
+
 	listPtr, err := meta.GetItemsPtr(listObj)
 	if err != nil {
 		return err
@@ -715,6 +731,7 @@ func (s *store) List(ctx context.Context, key, resourceVersion string, pred stor
 	listResults := make(map[uint8]*listPartitionResult, len(clients))
 	var wg sync.WaitGroup
 	wg.Add(len(clients))
+	var listAppendMux sync.Mutex
 
 	for i, c := range clients {
 		var optionsToUse []clientv3.OpOption
@@ -737,18 +754,23 @@ func (s *store) List(ctx context.Context, key, resourceVersion string, pred stor
 			optionsToUse = options
 		}
 
-		go func(c *clientv3.Client, key string, returnedRV int64, continueKey string, options []clientv3.OpOption, listResults map[uint8]*listPartitionResult, i uint8) {
+		go func(c *clientv3.Client, key string, returnedRV int64, continueKey string, options []clientv3.OpOption,
+			listResults map[uint8]*listPartitionResult, i uint8, listMux *sync.Mutex) {
+			trace := utiltrace.New("List key go func: " + key)
+			defer trace.LogIfLong(500 * time.Millisecond)
 			klog.V(6).Infof("List key %s from multi partitions. client %d, endpoint %v, paging [%v], returnedRV [%v], continueKey [%v], keyPrefix [%v], resourceVersion [%v]",
 				key, i, c.Endpoints(), paging, returnedRV, continueKey, keyPrefix, resourceVersion)
-			result, err := s.listPartition(ctx, c, key, pred, listObj, options, paging, returnedRV, continueKey, keyPrefix)
+			result, err := s.listPartition(ctx, c, key, pred, listObj, options, paging, returnedRV, continueKey, keyPrefix, listMux)
 			if err != nil {
 				result = &listPartitionResult{err: err}
 			}
-			s.listAppendMux.Lock()
+			trace.Step("Before acquiring listMux List")
+			listMux.Lock()
+			trace.Step("After acquiring listMux List")
 			listResults[i] = result
-			s.listAppendMux.Unlock()
+			listMux.Unlock()
 			wg.Done()
-		}(c, keyToUse, returnedRV, continueKey, optionsToUse, listResults, i)
+		}(c, keyToUse, returnedRV, continueKey, optionsToUse, listResults, i, &listAppendMux)
 	}
 
 	wg.Wait()
@@ -810,7 +832,10 @@ func (s *store) updatelist(listObj runtime.Object, listResult map[uint8]*listPar
 }
 
 func (s *store) listPartition(ctx context.Context, client *clientv3.Client, key string, pred storage.SelectionPredicate, listObj runtime.Object,
-	options []clientv3.OpOption, paging bool, returnedRV int64, continueKey string, keyPrefix string) (*listPartitionResult, error) {
+	options []clientv3.OpOption, paging bool, returnedRV int64, continueKey string, keyPrefix string, listAppendMux *sync.Mutex) (*listPartitionResult, error) {
+
+	trace := utiltrace.New(fmt.Sprintf("listPartition etcd3: key=%s", key))
+	defer trace.LogIfLong(500 * time.Millisecond)
 
 	result := &listPartitionResult{
 		err:                nil,
@@ -843,7 +868,10 @@ func (s *store) listPartition(ctx context.Context, client *clientv3.Client, key 
 
 		// avoid small allocations for the result slice, since this can be called in many
 		// different contexts and we don't know how significantly the result will be filtered
-		s.listAppendMux.Lock()
+		trace.Step("Before acquiring ListAppendMux listPartition")
+		listAppendMux.Lock()
+		trace.Step("After acquiring ListAppendMux listPartition")
+
 		if pred.Empty() {
 			growSlice(v, len(getResp.Kvs))
 		} else {
@@ -860,16 +888,16 @@ func (s *store) listPartition(ctx context.Context, client *clientv3.Client, key 
 
 			data, _, err := s.transformer.TransformFromStorage(kv.Value, authenticatedDataString(kv.Key))
 			if err != nil {
-				s.listAppendMux.Unlock()
+				listAppendMux.Unlock()
 				return nil, storage.NewInternalErrorf("unable to transform key %q: %v", kv.Key, err)
 			}
 
 			if err := appendListItem(v, data, uint64(kv.ModRevision), pred, s.codec, s.versioner); err != nil {
-				s.listAppendMux.Unlock()
+				listAppendMux.Unlock()
 				return nil, err
 			}
 		}
-		s.listAppendMux.Unlock()
+		listAppendMux.Unlock()
 
 		// indicate to the client which resource version was returned
 		if returnedRV == 0 {
@@ -911,6 +939,7 @@ func (s *store) listPartition(ctx context.Context, client *clientv3.Client, key 
 
 	// no continuation
 	result.returnedRV = returnedRV
+	trace.Step("Returning from ListPartition")
 	return result, nil
 	//return s.versioner.UpdateList(listObj, uint64(returnedRV), "", nil), lastRV
 }
@@ -959,6 +988,9 @@ func (s *store) WatchList(ctx context.Context, key string, resourceVersion strin
 }
 
 func (s *store) watch(ctx context.Context, key string, rv string, pred storage.SelectionPredicate, recursive bool) watch.AggregatedWatchInterface {
+	trace := utiltrace.New(fmt.Sprintf("watch etcd3: key=%s, rv: %s", key, rv))
+	defer trace.LogIfLong(100 * time.Millisecond)
+
 	rev, err := s.versioner.ParseResourceVersion(rv)
 	if err != nil {
 		return watch.NewAggregatedWatcherWithOneWatch(nil, err)
@@ -970,14 +1002,17 @@ func (s *store) watch(ctx context.Context, key string, rv string, pred storage.S
 	go func(s *store, ctx context.Context, key string, rv string, pred storage.SelectionPredicate, recursive bool, aw watch.AggregatedWatchInterface) {
 		// Waiting for storage cluster updates
 		for newClusterId := range s.dataClientAddCh {
-			s.mux.Lock()
+			trace.Step("Before acquiring mux")
+			s.dataClientMux.Lock()
+			trace.Step("After acquiring mux")
 			newWatcher := s.dataClusterWatchers[newClusterId]
 			nw := newWatcher.Watch(ctx, key, int64(rev), recursive, pred)
 			aw.AddWatchInterface(nw, nw.GetErrors())
-			s.mux.Unlock()
+			s.dataClientMux.Unlock()
 		}
 	}(s, ctx, key, rv, pred, recursive, aw)
 
+	trace.Step("Returning from watch")
 	return aw
 }
 
@@ -1101,6 +1136,9 @@ func (s *store) getClientFromKey(key string) *clientv3.Client {
 }
 
 func (s *store) getClientAndClusterIdFromKey(key string) (uint8, *clientv3.Client) {
+	trace := utiltrace.New(fmt.Sprintf("getClientAndClusterIdFromKey: key=%v", key))
+	defer trace.LogIfLong(10 * time.Millisecond)
+
 	// remove prefix
 	lenPrefix := len(s.pathPrefix)
 	if lenPrefix > 0 && s.pathPrefix[lenPrefix-1:lenPrefix] != "/" {
@@ -1142,6 +1180,8 @@ func (s *store) getClientAndClusterIdFromKey(key string) (uint8, *clientv3.Clien
 
 	clusterId, c := s.getClientForTenant(tenant)
 	klog.V(5).Infof("client %v: %s. cluster id %v", c.Endpoints(), message, clusterId)
+
+	trace.Step("Returning from getClientAndClusterIdFromKey")
 	return clusterId, c
 }
 
