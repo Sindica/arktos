@@ -535,7 +535,7 @@ func TestGuaranteedUpdateChecksStoredData(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp, err := store.getClientFromKey(key).Put(ctx, key, "test! "+string(data)+" ")
+	resp, err := store.getClientFromContextAndKey(key).Put(ctx, key, "test! "+string(data)+" ")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1612,13 +1612,13 @@ func TestGetClientFromKey(t *testing.T) {
 		storeT.pathPrefix = prefix
 		for _, systemKey := range systemKeys {
 			systemKeyWithPrefix := path.Join(storeT.pathPrefix, systemKey)
-			c := storeT.getClientFromKey(systemKeyWithPrefix)
+			c := storeT.getClientFromContextAndKey(systemKeyWithPrefix)
 			assert.Equal(t, systemClient, c, fmt.Sprintf("Expected system key %s but not", systemKey))
 		}
 
 		for _, dataKey := range dataKeys {
 			dataKeyWithPrefix := path.Join(storeT.pathPrefix, dataKey)
-			c := storeT.getClientFromKey(dataKeyWithPrefix)
+			c := storeT.getClientFromContextAndKey(dataKeyWithPrefix)
 			assert.Equal(t, dataClientV3, c, fmt.Sprintf("Expected tenant key %s but not", dataKey))
 		}
 	}

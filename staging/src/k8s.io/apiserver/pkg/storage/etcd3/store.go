@@ -24,7 +24,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/diff"
+	genericapirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/storage/datapartition"
 	"k8s.io/apiserver/pkg/storage/storagecluster"
 	"path"
@@ -224,7 +226,7 @@ func (s *store) Versioner() storage.Versioner {
 func (s *store) Get(ctx context.Context, key string, resourceVersion string, out runtime.Object, ignoreNotFound bool) error {
 	key = path.Join(s.pathPrefix, key)
 	startTime := time.Now()
-	getResp, err := s.getClientFromKey(key).KV.Get(ctx, key, s.getOps...)
+	getResp, err := s.getClientFromContext(ctx).KV.Get(ctx, key, s.getOps...)
 	metrics.RecordEtcdRequestLatency("get", getTypeName(out), startTime)
 	if err != nil {
 		return err
@@ -272,7 +274,7 @@ func (s *store) Create(ctx context.Context, key string, obj, out runtime.Object,
 	}
 
 	startTime := time.Now()
-	txnResp, err := s.getClientFromKey(key).KV.Txn(ctx).If(
+	txnResp, err := s.getClientFromContext(ctx).KV.Txn(ctx).If(
 		notFound(key),
 	).Then(
 		clientv3.OpPut(key, string(newData), opts...),
@@ -304,7 +306,7 @@ func (s *store) Delete(ctx context.Context, key string, out runtime.Object, prec
 
 func (s *store) conditionalDelete(ctx context.Context, key string, out runtime.Object, v reflect.Value, preconditions *storage.Preconditions, validateDeletion storage.ValidateObjectFunc) error {
 	startTime := time.Now()
-	getResp, err := s.getClientFromKey(key).KV.Get(ctx, key)
+	getResp, err := s.getClientFromContext(ctx).KV.Get(ctx, key)
 	metrics.RecordEtcdRequestLatency("get", getTypeName(out), startTime)
 	if err != nil {
 		return err
@@ -323,7 +325,7 @@ func (s *store) conditionalDelete(ctx context.Context, key string, out runtime.O
 			return err
 		}
 		startTime := time.Now()
-		txnResp, err := s.getClientFromKey(key).KV.Txn(ctx).If(
+		txnResp, err := s.getClientFromContext(ctx).KV.Txn(ctx).If(
 			clientv3.Compare(clientv3.ModRevision(key), "=", origState.rev),
 		).Then(
 			clientv3.OpDelete(key),
@@ -358,7 +360,7 @@ func (s *store) GuaranteedUpdate(
 
 	getCurrentState := func() (*objState, error) {
 		startTime := time.Now()
-		getResp, err := s.getClientFromKey(key).KV.Get(ctx, key, s.getOps...)
+		getResp, err := s.getClientFromContext(ctx).KV.Get(ctx, key, s.getOps...)
 		metrics.RecordEtcdRequestLatency("get", getTypeName(out), startTime)
 		if err != nil {
 			return nil, err
@@ -452,7 +454,7 @@ func (s *store) GuaranteedUpdate(
 		trace.Step("Transaction prepared")
 
 		startTime := time.Now()
-		txnResp, err := s.getClientFromKey(key).KV.Txn(ctx).If(
+		txnResp, err := s.getClientFromContext(ctx).KV.Txn(ctx).If(
 			clientv3.Compare(clientv3.ModRevision(key), "=", origState.rev),
 		).Then(
 			clientv3.OpPut(key, string(newData), opts...),
@@ -497,7 +499,7 @@ func (s *store) GetToList(ctx context.Context, key string, resourceVersion strin
 
 	key = path.Join(s.pathPrefix, key)
 	startTime := time.Now()
-	getResp, err := s.getClientFromKey(key).KV.Get(ctx, key, s.getOps...)
+	getResp, err := s.getClientFromContext(ctx).KV.Get(ctx, key, s.getOps...)
 	metrics.RecordEtcdRequestLatency("get", getTypeName(listPtr), startTime)
 	if err != nil {
 		return err
@@ -1097,6 +1099,16 @@ var regexPrefixToCheck = []string{
 	"services/endpoints/",
 	"apiregistration.k8s.io/apiservices/",
 	"apiextensions.k8s.io/customresourcedefinitions/",
+}
+
+func (s *store) getClientFromContext(ctx context.Context) *clientv3.Client {
+	tenant := genericapirequest.TenantValue(ctx)
+	if tenant == "" || tenant == metav1.TenantSystem {
+		return s.client
+	}
+
+	_, client := s.getClientForTenant(tenant)
+	return client
 }
 
 // Based on the key tree structure, figure out which client it needs to go to
