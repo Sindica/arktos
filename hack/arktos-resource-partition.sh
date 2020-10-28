@@ -15,7 +15,6 @@
 # limitations under the License.
 
 KUBE_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
-START_MODE="nokubelet"
 
 source "${KUBE_ROOT}/hack/lib/common-var-init.sh"
 
@@ -485,7 +484,7 @@ if [[ "${START_MODE}" != "kubeletonly" ]]; then
   if [[ "${EXTERNAL_CLOUD_PROVIDER:-}" == "true" ]]; then
     start_cloud_controller_manager
   fi
-  if [[ "${START_MODE}" != "nokubelet" ]]; then
+  if [[ "${START_MODE}" != "nokubeproxy" ]]; then
     kube::common::start_kubeproxy
   fi
   kube::common::start_kubescheduler
@@ -528,7 +527,7 @@ echo "*******************************************"
 echo "Setup Arktos components ..."
 echo ""
 
-#while ! cluster/kubectl.sh get nodes --no-headers | grep -i -w Ready; do sleep 3; echo "Waiting for node ready at api server"; done
+while ! cluster/kubectl.sh get nodes --no-headers | grep -i -w Ready; do sleep 3; echo "Waiting for node ready at api server"; done
 
 ${KUBECTL} --kubeconfig="${CERT_DIR}/admin.kubeconfig" label node ${HOSTNAME_OVERRIDE} extraRuntime=virtlet
 
