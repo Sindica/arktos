@@ -1,5 +1,6 @@
 /*
 Copyright 2017 The Kubernetes Authors.
+Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -131,6 +132,12 @@ const (
 	//
 	// Enables managing request concurrency with prioritization and fairness at each server
 	RequestManagement featuregate.Feature = "RequestManagement"
+
+	// owner: @wojtek-t
+	// alpha: v1.16
+	//
+	// Deprecates and removes SelfLink from ObjectMeta and ListMeta.
+	RemoveSelfLink featuregate.Feature = "RemoveSelfLink"
 )
 
 func init() {
@@ -155,4 +162,5 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 	WinDSR:                  {Default: false, PreRelease: featuregate.Alpha},
 	WatchBookmark:           {Default: false, PreRelease: featuregate.Alpha},
 	RequestManagement:       {Default: false, PreRelease: featuregate.Alpha},
+	RemoveSelfLink:          {Default: false, PreRelease: featuregate.Alpha},
 }
