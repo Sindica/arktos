@@ -1,3 +1,4 @@
+pkg/controller/informer_factory.go
 pkg/cloudfabric-controller/client_builder.go
 pkg/cloudfabric-controller/controller_ref_manager.go
 pkg/cloudfabric-controller/controller_ref_manager_test.go
@@ -39,5 +40,6 @@ staging/src/k8s.io/apiserver/pkg/storage/etcd3/testing/test_server.go
 staging/src/k8s.io/apiserver/pkg/storage/etcd3/testing/testingcert/certificates.go
 staging/src/k8s.io/apiserver/pkg/storage/etcd3/testing/utils.go
 staging/src/k8s.io/cli-runtime/pkg/resource/scheme.go
+staging/src/k8s.io/client-go/metadata/metadatainformer/interface.go
 test/e2e/node/node_problem_detector.go
-
+test/integration/garbagecollector/garbage_collector_test.go

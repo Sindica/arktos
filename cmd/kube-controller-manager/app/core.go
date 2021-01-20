@@ -37,8 +37,8 @@ import (
 	arktos "k8s.io/arktos-ext/pkg/generated/clientset/versioned"
 	"k8s.io/client-go/discovery"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"
-	"k8s.io/client-go/dynamic"
 	clientset "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/metadata"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/controller"
 	cloudcontroller "k8s.io/kubernetes/pkg/controller/cloud"
@@ -312,7 +312,7 @@ func startResourceQuotaController(ctx ControllerContext) (http.Handler, bool, er
 		QuotaClient:               resourceQuotaControllerClient.CoreV1(),
 		ResourceQuotaInformer:     ctx.InformerFactory.Core().V1().ResourceQuotas(),
 		ResyncPeriod:              controller.StaticResyncPeriodFunc(ctx.ComponentConfig.ResourceQuotaController.ResourceQuotaSyncPeriod.Duration),
-		InformerFactory:           ctx.GenericInformerFactory,
+		InformerFactory:           ctx.ObjectOrMetadataInformerFactory,
 		ReplenishmentResyncPeriod: ctx.ResyncPeriod,
 		DiscoveryFunc:             discoveryFunc,
 		IgnoredResourcesFunc:      quotaConfiguration.IgnoredResources,
@@ -369,7 +369,7 @@ func startTenantController(ctx ControllerContext) (http.Handler, bool, error) {
 	}
 	networkClient := arktos.NewForConfigOrDie(&crConfigs)
 
-	dynamicClient, err := dynamic.NewForConfig(tnKubeConfigs)
+	metadataClient, err := metadata.NewForConfig(tnKubeConfigs)
 	if err != nil {
 		return nil, true, err
 	}
@@ -389,7 +389,7 @@ func startTenantController(ctx ControllerContext) (http.Handler, bool, error) {
 		ctx.ComponentConfig.TenantController.TenantSyncPeriod.Duration,
 		networkClient,
 		ctx.ComponentConfig.TenantController.DefaultNetworkTemplatePath,
-		dynamicClient,
+		metadataClient,
 		discoverTenantedResourcesFn,
 		v1.FinalizerArktos)
 	go tenantController.Run(int(ctx.ComponentConfig.TenantController.ConcurrentTenantSyncs), ctx.Stop)
@@ -399,7 +399,7 @@ func startTenantController(ctx ControllerContext) (http.Handler, bool, error) {
 
 func startModifiedNamespaceController(ctx ControllerContext, namespaceKubeClient clientset.Interface, nsKubeconfig *restclient.Config) (http.Handler, bool, error) {
 
-	dynamicClient, err := dynamic.NewForConfig(nsKubeconfig)
+	metadataClient, err := metadata.NewForConfig(nsKubeconfig)
 	if err != nil {
 		return nil, true, err
 	}
@@ -408,7 +408,7 @@ func startModifiedNamespaceController(ctx ControllerContext, namespaceKubeClient
 
 	namespaceController := namespacecontroller.NewNamespaceController(
 		namespaceKubeClient,
-		dynamicClient,
+		metadataClient,
 		discoverResourcesFn,
 		ctx.InformerFactory.Core().V1().Namespaces(),
 		ctx.ComponentConfig.NamespaceController.NamespaceSyncPeriod.Duration,
@@ -450,7 +450,7 @@ func startGarbageCollectorController(ctx ControllerContext) (http.Handler, bool,
 	discoveryClient := cacheddiscovery.NewMemCacheClient(gcClientset.Discovery())
 
 	config := ctx.ClientBuilder.ConfigOrDie("generic-garbage-collector")
-	dynamicClient, err := dynamic.NewForConfig(config)
+	metadataClient, err := metadata.NewForConfig(config)
 	if err != nil {
 		return nil, true, err
 	}
@@ -462,11 +462,11 @@ func startGarbageCollectorController(ctx ControllerContext) (http.Handler, bool,
 		ignoredResources[schema.GroupResource{Group: r.Group, Resource: r.Resource}] = struct{}{}
 	}
 	garbageCollector, err := garbagecollector.NewGarbageCollector(
-		dynamicClient,
+		metadataClient,
 		ctx.RESTMapper,
 		deletableResources,
 		ignoredResources,
-		ctx.GenericInformerFactory,
+		ctx.ObjectOrMetadataInformerFactory,
 		ctx.InformersStarted,
 	)
 	if err != nil {
