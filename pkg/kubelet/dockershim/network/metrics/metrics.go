@@ -17,6 +17,8 @@ limitations under the License.
 package metrics
 
 import (
+	"k8s.io/component-base/metrics"
+	"k8s.io/component-base/metrics/legacyregistry"
 	"sync"
 	"time"
 
