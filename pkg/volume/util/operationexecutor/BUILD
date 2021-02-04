@@ -41,11 +41,19 @@ go_library(
 
 go_test(
     name = "go_default_test",
-    srcs = ["operation_executor_test.go"],
+    srcs = [
+        "operation_executor_test.go",
+        "operation_generator_test.go",
+    ],
     embed = [":go_default_library"],
     deps = [
+        "//pkg/features:go_default_library",
         "//pkg/util/mount:go_default_library",
         "//pkg/volume:go_default_library",
+        "//pkg/volume/awsebs:go_default_library",
+        "//pkg/volume/csi:go_default_library",
+        "//pkg/volume/gcepd:go_default_library",
+        "//pkg/volume/testing:go_default_library",
         "//pkg/volume/util/types:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
@@ -60,6 +68,7 @@ go_test(
         "//staging/src/k8s.io/csi-translation-lib/plugins:go_default_library",
         "//vendor/github.com/prometheus/client_model/go:go_default_library",
         "//vendor/github.com/stretchr/testify/assert:go_default_library",
+        "//vendor/k8s.io/kubernetes/pkg/volume/csi/testing:go_default_library",
     ],
 )
 

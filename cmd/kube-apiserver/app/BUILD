@@ -65,6 +65,7 @@ go_library(
         "//staging/src/k8s.io/cloud-provider:go_default_library",
         "//staging/src/k8s.io/component-base/cli/flag:go_default_library",
         "//staging/src/k8s.io/component-base/cli/globalflag:go_default_library",
+        "//staging/src/k8s.io/component-base/metrics/prometheus/workqueue:go_default_library",
         "//staging/src/k8s.io/component-base/version:go_default_library",
         "//staging/src/k8s.io/kube-aggregator/pkg/apis/apiregistration:go_default_library",
         "//staging/src/k8s.io/kube-aggregator/pkg/apis/apiregistration/v1:go_default_library",
@@ -76,7 +77,6 @@ go_library(
         "//staging/src/k8s.io/kube-aggregator/pkg/controllers/autoregister:go_default_library",
         "//vendor/github.com/go-openapi/spec:go_default_library",
         "//vendor/github.com/spf13/cobra:go_default_library",
-        "//vendor/k8s.io/component-base/metrics/prometheus/workqueue:go_default_library",
         "//vendor/k8s.io/klog:go_default_library",
     ],
 )
