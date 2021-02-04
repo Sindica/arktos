@@ -62,3 +62,22 @@ filegroup(
     tags = ["automanaged"],
     visibility = ["//visibility:public"],
 )
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "counter_test.go",
+        "gauge_test.go",
+        "histogram_test.go",
+        "registry_test.go",
+        "summary_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "//staging/src/k8s.io/apimachinery/pkg/version:go_default_library",
+        "//vendor/github.com/blang/semver:go_default_library",
+        "//vendor/github.com/prometheus/client_golang/prometheus:go_default_library",
+        "//vendor/github.com/prometheus/common/expfmt:go_default_library",
+        "//vendor/github.com/stretchr/testify/assert:go_default_library",
+    ],
+)
