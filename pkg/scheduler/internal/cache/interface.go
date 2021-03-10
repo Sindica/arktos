@@ -20,6 +20,7 @@ package cache
 import (
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	corelisters "k8s.io/client-go/listers/core/v1"
 	"k8s.io/kubernetes/pkg/scheduler/algorithm"
 	schedulernodeinfo "k8s.io/kubernetes/pkg/scheduler/nodeinfo"
 )
@@ -91,7 +92,7 @@ type Cache interface {
 	AddNode(node *v1.Node, resourceProviderId string) error
 
 	// UpdateNode updates overall information about node.
-	UpdateNode(oldNode, newNode *v1.Node, resourceProviderId string) error
+	UpdateNode(oldNode, newNode *v1.Node, nodeListers map[string]corelisters.NodeLister) error
 
 	// RemoveNode removes overall information about node.
 	RemoveNode(node *v1.Node) error

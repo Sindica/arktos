@@ -18,6 +18,7 @@ limitations under the License.
 package debugger
 
 import (
+	nodeutil "k8s.io/kubernetes/pkg/util/node"
 	"sort"
 	"strings"
 
@@ -32,7 +33,7 @@ import (
 
 // CacheComparer is an implementation of the Scheduler's cache comparer.
 type CacheComparer struct {
-	NodeListers []corelisters.NodeLister
+	NodeListers map[string]corelisters.NodeLister
 	PodLister   corelisters.PodLister
 	Cache       internalcache.Cache
 	PodQueue    internalqueue.SchedulingQueue
@@ -46,14 +47,7 @@ func (c *CacheComparer) Compare() error {
 	var nodes []*v1.Node
 	var err error
 	if len(c.NodeListers) > 0 {
-		nodes, err = c.NodeListers[0].List(labels.Everything())
-	}
-	for i := 1; i < len(c.NodeListers); i++ {
-		newNodes, err := c.NodeListers[i].List(labels.Everything())
-		if err != nil {
-			return err
-		}
-		nodes = append(nodes, newNodes...)
+		nodes, err = nodeutil.ListNodes(c.NodeListers, labels.Everything())
 	}
 
 	pods, err := c.PodLister.List(labels.Everything())
