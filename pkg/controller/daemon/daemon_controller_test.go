@@ -1915,8 +1915,9 @@ func setDaemonSetCritical(ds *apps.DaemonSet) {
 func TestNodeShouldRunDaemonPod(t *testing.T) {
 	for _, f := range []bool{true, false} {
 		defer featuregatetesting.SetFeatureGateDuringTest(t, utilfeature.DefaultFeatureGate, features.ScheduleDaemonSetPods, f)()
-		var shouldRun, shouldContinueRunning bool
+		var shouldCreate, wantToRun, shouldContinueRunning bool
 		if utilfeature.DefaultFeatureGate.Enabled(features.ScheduleDaemonSetPods) {
+			shouldCreate = true
 			wantToRun = true
 			shouldContinueRunning = true
 		}
@@ -1926,7 +1927,7 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 			nodeCondition                                  []v1.NodeCondition
 			nodeUnschedulable                              bool
 			ds                                             *apps.DaemonSet
-			shouldRun, shouldContinueRunning bool
+			wantToRun, shouldCreate, shouldContinueRunning bool
 			err                                            error
 		}{
 			{
@@ -1942,8 +1943,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-				shouldRun:             true,
-			shouldContinueRunning: true,
+				wantToRun:             true,
+				shouldCreate:          true,
+				shouldContinueRunning: true,
 			},
 			{
 				predicateName: "InsufficientResourceError",
@@ -1958,8 +1960,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-				shouldRun:             shouldRun,
-			shouldContinueRunning: true,
+				wantToRun:             true,
+				shouldCreate:          shouldCreate,
+				shouldContinueRunning: true,
 			},
 			{
 				predicateName: "ErrPodNotMatchHostName",
@@ -1974,8 +1977,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-				shouldRun:             false,
-			shouldContinueRunning: false,
+				wantToRun:             false,
+				shouldCreate:          false,
+				shouldContinueRunning: false,
 			},
 			{
 				predicateName: "ErrPodNotFitsHostPorts",
@@ -2007,7 +2011,8 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-				shouldRun:             shouldRun,
+				wantToRun:             wantToRun,
+				shouldCreate:          shouldCreate,
 				shouldContinueRunning: shouldContinueRunning,
 			},
 			{
@@ -2036,7 +2041,8 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-				shouldRun:             shouldRun, // This is because we don't care about the resource constraints any more and let default scheduler handle it.
+				wantToRun:             true,
+				shouldCreate:          shouldCreate, // This is because we don't care about the resource constraints any more and let default scheduler handle it.
 				shouldContinueRunning: true,
 			},
 			{
@@ -2065,8 +2071,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-			shouldRun:             true,
-			shouldContinueRunning: true,
+				wantToRun:             true,
+				shouldCreate:          true,
+				shouldContinueRunning: true,
 			},
 			{
 				predicateName: "ErrNodeSelectorNotMatch",
@@ -2083,8 +2090,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-			shouldRun:             false,
-			shouldContinueRunning: false,
+				wantToRun:             false,
+				shouldCreate:          false,
+				shouldContinueRunning: false,
 			},
 			{
 				predicateName: "ShouldRunDaemonPod",
@@ -2101,8 +2109,9 @@ func TestNodeShouldRunDaemonPod(t *testing.T) {
 						},
 					},
 				},
-shouldRun:             true,
-			shouldContinueRunning: true,
+				wantToRun:             true,
+				shouldCreate:          true,
+				shouldContinueRunning: true,
 			},
 			{
 				predicateName: "ErrPodAffinityNotMatch",
@@ -2135,8 +2144,9 @@ shouldRun:             true,
 						},
 					},
 				},
-shouldRun:             false,
-			shouldContinueRunning: false,
+				wantToRun:             false,
+				shouldCreate:          false,
+				shouldContinueRunning: false,
 			},
 			{
 				predicateName: "ShouldRunDaemonPod",
@@ -2169,7 +2179,8 @@ shouldRun:             false,
 						},
 					},
 				},
-				shouldRun:             true,
+				wantToRun:             true,
+				shouldCreate:          true,
 				shouldContinueRunning: true,
 			},
 			{
@@ -2186,7 +2197,8 @@ shouldRun:             false,
 					},
 				},
 				nodeUnschedulable:     true,
-				shouldRun:             true,
+				wantToRun:             true,
+				shouldCreate:          true,
 				shouldContinueRunning: true,
 			},
 		}
@@ -2208,16 +2220,20 @@ shouldRun:             false,
 					manager.podNodeIndex.Add(p)
 				}
 				c.ds.Spec.UpdateStrategy = *strategy
-				shouldRun, shouldContinueRunning, err := manager.nodeShouldRunDaemonPod(node, c.ds)
+				wantToRun, shouldRun, shouldContinueRunning, err := manager.nodeShouldRunDaemonPod(node, c.ds)
 
-			if shouldRun != c.shouldRun {
-				t.Errorf("[%v] strategy: %v, predicateName: %v expected shouldRun: %v, got: %v", i, c.ds.Spec.UpdateStrategy.Type, c.predicateName, c.shouldRun, shouldRun)
-			}
-			if shouldContinueRunning != c.shouldContinueRunning {
-				t.Errorf("[%v] strategy: %v, predicateName: %v expected shouldContinueRunning: %v, got: %v", i, c.ds.Spec.UpdateStrategy.Type, c.predicateName, c.shouldContinueRunning, shouldContinueRunning)
-			}
-			if err != c.err {
-				t.Errorf("[%v] strategy: %v, predicateName: %v expected err: %v, got: %v", i, c.predicateName, c.ds.Spec.UpdateStrategy.Type, c.err, err)
+				if wantToRun != c.wantToRun {
+					t.Errorf("[%v] strategy: %v, predicateName: %v expected wantToRun: %v, got: %v", i, c.ds.Spec.UpdateStrategy.Type, c.predicateName, c.wantToRun, wantToRun)
+				}
+				if shouldRun != c.shouldCreate {
+					t.Errorf("[%v] strategy: %v, predicateName: %v expected shouldRun: %v, got: %v", i, c.ds.Spec.UpdateStrategy.Type, c.predicateName, c.shouldCreate, shouldRun)
+				}
+				if shouldContinueRunning != c.shouldContinueRunning {
+					t.Errorf("[%v] strategy: %v, predicateName: %v expected shouldContinueRunning: %v, got: %v", i, c.ds.Spec.UpdateStrategy.Type, c.predicateName, c.shouldContinueRunning, shouldContinueRunning)
+				}
+				if err != c.err {
+					t.Errorf("[%v] strategy: %v, predicateName: %v expected err: %v, got: %v", i, c.predicateName, c.ds.Spec.UpdateStrategy.Type, c.err, err)
+				}
 			}
 		}
 	}

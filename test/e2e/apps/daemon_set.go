@@ -654,13 +654,12 @@ func canScheduleOnNode(node v1.Node, ds *appsv1.DaemonSet) bool {
 	newPod := daemon.NewPod(ds, node.Name)
 	nodeInfo := schedulernodeinfo.NewNodeInfo()
 	nodeInfo.SetNode(&node)
-	taints, err := nodeInfo.Taints()
+	fit, _, err := daemon.Predicates(newPod, nodeInfo)
 	if err != nil {
 		framework.Failf("Can't test DaemonSet predicates for node %s: %v", node.Name, err)
 		return false
 	}
-	fitsNodeName, fitsNodeAffinity, fitsTaints := daemon.Predicates(newPod, &node, taints)
-	return fitsNodeName && fitsNodeAffinity && fitsTaints
+	return fit
 }
 
 func checkRunningOnNoNodes(f *framework.Framework, ds *appsv1.DaemonSet) func() (bool, error) {
