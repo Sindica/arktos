@@ -1,4 +1,5 @@
 # Copyright 2018 The Kubernetes Authors.
+# Copyright 2020 Authors of Arktos - file modified.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
 FROM BASEIMAGE
 
 COPY ginkgo /usr/local/bin/
-COPY e2e.test /usr/local/bin/
+#COPY e2e.test /usr/local/bin/
 COPY kubectl /usr/local/bin/
 COPY run_e2e.sh /run_e2e.sh
 COPY cluster /kubernetes/cluster

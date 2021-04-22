@@ -1,4 +1,5 @@
 # Copyright 2016 The Kubernetes Authors.
+# Copyright 2020 Authors of Arktos - file modified.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,12 +45,12 @@ endif
 
 	cp ${GINKGO_BIN} ${TEMP_DIR}
 	cp ${KUBECTL_BIN} ${TEMP_DIR}
-	cp ${E2E_TEST_BIN} ${TEMP_DIR}
+	#cp ${E2E_TEST_BIN} ${TEMP_DIR}
 	cp -r ${CLUSTER_DIR} ${TEMP_DIR}/cluster
 
 	chmod a+rx ${TEMP_DIR}/ginkgo
 	chmod a+rx ${TEMP_DIR}/kubectl
-	chmod a+rx ${TEMP_DIR}/e2e.test
+	#chmod a+rx ${TEMP_DIR}/e2e.test
 
 	cd ${TEMP_DIR} && sed -i.back "s|BASEIMAGE|${BASEIMAGE}|g" Dockerfile
 

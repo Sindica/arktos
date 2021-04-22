@@ -107,7 +107,7 @@ kube::golang::conformance_image_targets() {
   # NOTE: this contains cmd targets for kube::release::build_conformance_image
   local targets=(
     vendor/github.com/onsi/ginkgo/ginkgo
-    test/e2e/e2e.test
+    # test/e2e/e2e.test
     cmd/kubectl
   )
   echo "${targets[@]}"
@@ -262,7 +262,7 @@ kube::golang::test_targets() {
     cmd/genswaggertypedocs
     cmd/linkcheck
     vendor/github.com/onsi/ginkgo/ginkgo
-    test/e2e/e2e.test
+    # test/e2e/e2e.test
   )
   echo "${targets[@]}"
 }
@@ -291,9 +291,9 @@ kube::golang::server_test_targets() {
     vendor/github.com/onsi/ginkgo/ginkgo
   )
 
-  if [[ "${OSTYPE:-}" == "linux"* ]]; then
-    targets+=( test/e2e_node/e2e_node.test )
-  fi
+  #if [[ "${OSTYPE:-}" == "linux"* ]]; then
+    # targets+=( test/e2e_node/e2e_node.test )
+  #fi
 
   echo "${targets[@]}"
 }
