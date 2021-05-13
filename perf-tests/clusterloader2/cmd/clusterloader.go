@@ -257,10 +257,10 @@ func main() {
 		if err = util.LogClusterNodes(mclient.GetClient()); err != nil {
 			klog.Errorf("Nodes info logging error: %v", err)
 		}
-	}
 
-	if err = verifyCluster(mclient.GetClient()); err != nil {
-		klog.Exitf("Cluster verification error: %v", err)
+		if err = verifyCluster(mclient.GetClient()); err != nil {
+			klog.Exitf("Cluster verification error: %v", err)
+		}
 	}
 
 	f, err := framework.NewFramework(
