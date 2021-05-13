@@ -433,6 +433,7 @@ func (n *NodeInfo) SetGeneration(newGeneration int64) {
 func (n *NodeInfo) Clone() *NodeInfo {
 	clone := &NodeInfo{
 		node:                    n.node,
+		resourceProviderId:      n.resourceProviderId,
 		requestedResource:       n.requestedResource.Clone(),
 		nonzeroRequest:          n.nonzeroRequest.Clone(),
 		allocatableResource:     n.allocatableResource.Clone(),
