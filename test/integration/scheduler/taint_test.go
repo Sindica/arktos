@@ -1,6 +1,5 @@
 /*
 Copyright 2017 The Kubernetes Authors.
-Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,25 +19,22 @@ package scheduler
 // This file tests the Taint feature.
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
-	featuregatetesting "k8s.io/component-base/featuregate/testing"
 	"k8s.io/kubernetes/pkg/controller/nodelifecycle"
-	nodeutil "k8s.io/kubernetes/pkg/controller/util/node"
-	"k8s.io/kubernetes/pkg/features"
-	"k8s.io/kubernetes/pkg/scheduler/algorithmprovider"
 	"k8s.io/kubernetes/plugin/pkg/admission/podtolerationrestriction"
 	pluginapi "k8s.io/kubernetes/plugin/pkg/admission/podtolerationrestriction/apis/podtolerationrestriction"
+	testutils "k8s.io/kubernetes/test/integration/util"
 )
 
 func newPod(nsName, name string, req, limit v1.ResourceList) *v1.Pod {
@@ -64,45 +60,34 @@ func newPod(nsName, name string, req, limit v1.ResourceList) *v1.Pod {
 
 // TestTaintNodeByCondition tests related cases for TaintNodeByCondition feature.
 func TestTaintNodeByCondition(t *testing.T) {
-	// Enable TaintNodeByCondition
-	defer featuregatetesting.SetFeatureGateDuringTest(t, utilfeature.DefaultFeatureGate, features.TaintNodesByCondition, true)()
-
 	// Build PodToleration Admission.
 	admission := podtolerationrestriction.NewPodTolerationsPlugin(&pluginapi.Configuration{})
 
-	context := initTestMaster(t, "default", admission)
+	testCtx := testutils.InitTestMaster(t, "default", admission)
 
 	// Build clientset and informers for controllers.
-	kubeConfig := &restclient.KubeConfig{
+	externalClientset := kubernetes.NewForConfigOrDie(&restclient.Config{
 		QPS:           -1,
-		Host:          context.httpServer.URL,
-		ContentConfig: restclient.ContentConfig{GroupVersion: &schema.GroupVersion{Group: "", Version: "v1"}}}
-	externalClientset := kubernetes.NewForConfigOrDie(restclient.NewAggregatedConfig(kubeConfig))
+		Host:          testCtx.HTTPServer.URL,
+		ContentConfig: restclient.ContentConfig{GroupVersion: &schema.GroupVersion{Group: "", Version: "v1"}}})
 	externalInformers := informers.NewSharedInformerFactory(externalClientset, time.Second)
 
 	admission.SetExternalKubeClientSet(externalClientset)
 	admission.SetExternalKubeInformerFactory(externalInformers)
 
-	// Apply feature gates to enable TaintNodesByCondition
-	algorithmprovider.ApplyFeatureGates()
+	testCtx = testutils.InitTestScheduler(t, testCtx, false, nil)
+	defer testutils.CleanupTest(t, testCtx)
 
-	context = initTestScheduler(t, context, false, nil)
-	cs := context.clientSet
-	informers := context.informerFactory
-	nsName := context.ns.Name
-
-	stopCh := make(chan struct{})
-	tpAccessors, err := nodeutil.GetTenantPartitionManagersFromKubeClients([]kubernetes.Interface{cs}, stopCh)
-	if err != nil {
-		t.Errorf("Failed to create Tenant Partition Accessor: %v", err)
-		return
-	}
+	cs := testCtx.ClientSet
+	informers := testCtx.InformerFactory
+	nsName := testCtx.NS.Name
 
 	// Start NodeLifecycleController for taint.
 	nc, err := nodelifecycle.NewNodeLifecycleController(
-		tpAccessors,
-		informers.Coordination().V1beta1().Leases(),
+		informers.Coordination().V1().Leases(),
+		informers.Core().V1().Pods(),
 		informers.Core().V1().Nodes(),
+		informers.Apps().V1().DaemonSets(),
 		cs,
 		time.Hour,   // Node monitor grace period
 		time.Second, // Node startup grace period
@@ -113,20 +98,18 @@ func TestTaintNodeByCondition(t *testing.T) {
 		100,         // Large cluster threshold
 		100,         // Unhealthy zone threshold
 		true,        // Run taint manager
-		true,        // Use taint based evictions
-		true,        // Enabled TaintNodeByCondition feature
 	)
 	if err != nil {
 		t.Errorf("Failed to create node controller: %v", err)
 		return
 	}
-	go nc.Run(context.stopCh)
+	go nc.Run(testCtx.Ctx.Done())
 
 	// Waiting for all controller sync.
-	externalInformers.Start(context.stopCh)
-	externalInformers.WaitForCacheSync(context.stopCh)
-	informers.Start(context.stopCh)
-	informers.WaitForCacheSync(context.stopCh)
+	externalInformers.Start(testCtx.Ctx.Done())
+	externalInformers.WaitForCacheSync(testCtx.Ctx.Done())
+	informers.Start(testCtx.Ctx.Done())
+	informers.WaitForCacheSync(testCtx.Ctx.Done())
 
 	// -------------------------------------------
 	// Test TaintNodeByCondition feature.
@@ -204,14 +187,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 					Type:   v1.NodeReady,
 					Status: v1.ConditionFalse,
 				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
 			},
 			expectedTaints: []v1.Taint{
 				{
@@ -245,14 +220,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 			nodeConditions: []v1.NodeCondition{
 				{
 					Type:   v1.NodeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
 					Status: v1.ConditionTrue,
 				},
 			},
@@ -291,14 +258,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 				},
 				{
 					Type:   v1.NodeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
 					Status: v1.ConditionTrue,
 				},
 			},
@@ -346,14 +305,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 					Type:   v1.NodeReady,
 					Status: v1.ConditionTrue,
 				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
 			},
 			expectedTaints: []v1.Taint{
 				{
@@ -398,14 +349,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 					Type:   v1.NodeReady,
 					Status: v1.ConditionTrue,
 				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
 			},
 			expectedTaints: []v1.Taint{
 				{
@@ -445,14 +388,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 				{
 					Type:   v1.NodeReady,
 					Status: v1.ConditionFalse,
-				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
 				},
 			},
 			expectedTaints: []v1.Taint{
@@ -506,14 +441,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 					Type:   v1.NodeReady,
 					Status: v1.ConditionTrue,
 				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
 			},
 			expectedTaints: []v1.Taint{
 				{
@@ -560,14 +487,6 @@ func TestTaintNodeByCondition(t *testing.T) {
 					Type:   v1.NodeReady,
 					Status: v1.ConditionTrue,
 				},
-				{
-					Type:   v1.NodeVmRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
-				{
-					Type:   v1.NodeContainerRuntimeReady,
-					Status: v1.ConditionTrue,
-				},
 			},
 			expectedTaints: []v1.Taint{
 				{
@@ -603,11 +522,16 @@ func TestTaintNodeByCondition(t *testing.T) {
 				},
 			}
 
-			if _, err := cs.CoreV1().Nodes().Create(node); err != nil {
+			if _, err := cs.CoreV1().Nodes().Create(context.TODO(), node, metav1.CreateOptions{}); err != nil {
 				t.Errorf("Failed to create node, err: %v", err)
 			}
-			if err := waitForNodeTaints(cs, node, test.expectedTaints); err != nil {
-				t.Errorf("Failed to taint node <%s>, err: %v", node.Name, err)
+			if err := testutils.WaitForNodeTaints(cs, node, test.expectedTaints); err != nil {
+				node, err = cs.CoreV1().Nodes().Get(context.TODO(), node.Name, metav1.GetOptions{})
+				if err != nil {
+					t.Errorf("Failed to get node <%s>", node.Name)
+				}
+
+				t.Errorf("Failed to taint node <%s>, expected: %v, got: %v, err: %v", node.Name, test.expectedTaints, node.Spec.Taints, err)
 			}
 
 			var pods []*v1.Pod
@@ -616,7 +540,7 @@ func TestTaintNodeByCondition(t *testing.T) {
 				pod.Name = fmt.Sprintf("%s-%d", pod.Name, i)
 				pod.Spec.Tolerations = p.tolerations
 
-				createdPod, err := cs.CoreV1().Pods(pod.Namespace).Create(pod)
+				createdPod, err := cs.CoreV1().Pods(pod.Namespace).Create(context.TODO(), pod, metav1.CreateOptions{})
 				if err != nil {
 					t.Fatalf("Failed to create pod %s/%s, error: %v",
 						pod.Namespace, pod.Name, err)
@@ -625,7 +549,7 @@ func TestTaintNodeByCondition(t *testing.T) {
 				pods = append(pods, createdPod)
 
 				if p.fits {
-					if err := waitForPodToSchedule(cs, createdPod); err != nil {
+					if err := testutils.WaitForPodToSchedule(cs, createdPod); err != nil {
 						t.Errorf("Failed to schedule pod %s/%s on the node, err: %v",
 							pod.Namespace, pod.Name, err)
 					}
@@ -637,9 +561,9 @@ func TestTaintNodeByCondition(t *testing.T) {
 				}
 			}
 
-			cleanupPods(cs, t, pods)
-			cleanupNodes(cs, t)
-			waitForSchedulerCacheCleanup(context.scheduler, t)
+			testutils.CleanupPods(cs, t, pods)
+			testutils.CleanupNodes(cs, t)
+			testutils.WaitForSchedulerCacheCleanup(testCtx.Scheduler, t)
 		})
 	}
 }
