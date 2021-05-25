@@ -73,3 +73,5 @@ staging/src/k8s.io/client-go/util/flowcontrol/throttle_test.go
 staging/src/k8s.io/csi-translation-lib/plugins/in_tree_volume_test.go
 test/e2e/node/node_problem_detector.go
 test/integration/garbagecollector/garbage_collector_test.go
+test/integration/scheduler/plugins_test.go
+test/integration/scheduler_perf/scheduler_perf_test.go
