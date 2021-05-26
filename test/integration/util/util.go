@@ -54,6 +54,8 @@ import (
 // ShutdownFunc represents the function handle to be called, typically in a defer handler, to shutdown a running module
 type ShutdownFunc func()
 
+const rpId0 = "rp0"
+
 // StartApiserver starts a local API server for testing and returns the handle to the URL and the shutdown function to stop it.
 func StartApiserver() (string, ShutdownFunc) {
 	h := &framework.MasterHolder{Initialized: make(chan struct{})}
@@ -80,13 +82,16 @@ func StartScheduler(clientSet clientset.Interface) (*scheduler.Scheduler, corein
 	informerFactory := informers.NewSharedInformerFactory(clientSet, 0)
 	podInformer := informerFactory.Core().V1().Pods()
 	evtBroadcaster := events.NewBroadcaster(&events.EventSinkImpl{
-		Interface: clientSet.EventsV1beta1().Events("")})
+		Interface: clientSet.EventsV1beta1().EventsWithMultiTenancy(metav1.NamespaceAll, metav1.TenantAll)})
 
 	evtBroadcaster.StartRecordingToSink(ctx.Done())
+	nodeInformers := make(map[string]coreinformers.NodeInformer, 1)
+	nodeInformers[rpId0] = informerFactory.Core().V1().Nodes()
 
 	sched, err := scheduler.New(
 		clientSet,
 		informerFactory,
+		nodeInformers,
 		podInformer,
 		profile.NewRecorderFactory(evtBroadcaster),
 		ctx.Done())
@@ -116,7 +121,7 @@ func StartFakePVController(clientSet clientset.Interface) ShutdownFunc {
 	syncPV := func(obj *v1.PersistentVolume) {
 		if obj.Spec.ClaimRef != nil {
 			claimRef := obj.Spec.ClaimRef
-			pvc, err := clientSet.CoreV1().PersistentVolumeClaims(claimRef.Namespace).Get(ctx, claimRef.Name, metav1.GetOptions{})
+			pvc, err := clientSet.CoreV1().PersistentVolumeClaims(claimRef.Namespace).Get(claimRef.Name, metav1.GetOptions{})
 			if err != nil {
 				klog.Errorf("error while getting %v/%v: %v", claimRef.Namespace, claimRef.Name, err)
 				return
@@ -125,7 +130,7 @@ func StartFakePVController(clientSet clientset.Interface) ShutdownFunc {
 			if pvc.Spec.VolumeName == "" {
 				pvc.Spec.VolumeName = obj.Name
 				metav1.SetMetaDataAnnotation(&pvc.ObjectMeta, pvutil.AnnBindCompleted, "yes")
-				_, err := clientSet.CoreV1().PersistentVolumeClaims(claimRef.Namespace).Update(ctx, pvc, metav1.UpdateOptions{})
+				_, err := clientSet.CoreV1().PersistentVolumeClaims(claimRef.Namespace).Update(pvc)
 				if err != nil {
 					klog.Errorf("error while getting %v/%v: %v", claimRef.Namespace, claimRef.Name, err)
 					return
@@ -161,7 +166,7 @@ type TestContext struct {
 
 // CleanupNodes cleans all nodes which were created during integration test
 func CleanupNodes(cs clientset.Interface, t *testing.T) {
-	err := cs.CoreV1().Nodes().DeleteCollection(context.TODO(), *metav1.NewDeleteOptions(0), metav1.ListOptions{})
+	err := cs.CoreV1().Nodes().DeleteCollection(metav1.NewDeleteOptions(0), metav1.ListOptions{})
 	if err != nil {
 		t.Errorf("error while deleting all nodes: %v", err)
 	}
@@ -170,7 +175,7 @@ func CleanupNodes(cs clientset.Interface, t *testing.T) {
 // PodDeleted returns true if a pod is not found in the given namespace.
 func PodDeleted(c clientset.Interface, podNamespace, podName string) wait.ConditionFunc {
 	return func() (bool, error) {
-		pod, err := c.CoreV1().Pods(podNamespace).Get(context.TODO(), podName, metav1.GetOptions{})
+		pod, err := c.CoreV1().Pods(podNamespace).Get(podName, metav1.GetOptions{})
 		if apierrors.IsNotFound(err) {
 			return true, nil
 		}
@@ -186,7 +191,7 @@ func CleanupTest(t *testing.T, testCtx *TestContext) {
 	// Kill the scheduler.
 	testCtx.CancelFn()
 	// Cleanup nodes.
-	testCtx.ClientSet.CoreV1().Nodes().DeleteCollection(context.TODO(), metav1.DeleteOptions{}, metav1.ListOptions{})
+	testCtx.ClientSet.CoreV1().Nodes().DeleteCollection(&metav1.DeleteOptions{}, metav1.ListOptions{})
 	framework.DeleteTestingNamespace(testCtx.NS, testCtx.HTTPServer, t)
 	testCtx.CloseFn()
 }
@@ -194,7 +199,7 @@ func CleanupTest(t *testing.T, testCtx *TestContext) {
 // CleanupPods deletes the given pods and waits for them to be actually deleted.
 func CleanupPods(cs clientset.Interface, t *testing.T, pods []*v1.Pod) {
 	for _, p := range pods {
-		err := cs.CoreV1().Pods(p.Namespace).Delete(context.TODO(), p.Name, *metav1.NewDeleteOptions(0))
+		err := cs.CoreV1().Pods(p.Namespace).Delete(p.Name, metav1.NewDeleteOptions(0))
 		if err != nil && !apierrors.IsNotFound(err) {
 			t.Errorf("error while deleting pod %v/%v: %v", p.Namespace, p.Name, err)
 		}
@@ -209,13 +214,13 @@ func CleanupPods(cs clientset.Interface, t *testing.T, pods []*v1.Pod) {
 
 // AddTaintToNode add taints to specific node
 func AddTaintToNode(cs clientset.Interface, nodeName string, taint v1.Taint) error {
-	node, err := cs.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
+	node, err := cs.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	copy := node.DeepCopy()
 	copy.Spec.Taints = append(copy.Spec.Taints, taint)
-	_, err = cs.CoreV1().Nodes().Update(context.TODO(), copy, metav1.UpdateOptions{})
+	_, err = cs.CoreV1().Nodes().Update(copy)
 	return err
 }
 
@@ -229,7 +234,7 @@ func WaitForNodeTaints(cs clientset.Interface, node *v1.Node, taints []v1.Taint)
 // the taints.
 func NodeTainted(cs clientset.Interface, nodeName string, taints []v1.Taint) wait.ConditionFunc {
 	return func() (bool, error) {
-		node, err := cs.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
+		node, err := cs.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}
@@ -285,7 +290,7 @@ func NodeCopyWithConditions(node *v1.Node, conditions []v1.NodeCondition) *v1.No
 
 // UpdateNodeStatus updates the status of node.
 func UpdateNodeStatus(cs clientset.Interface, node *v1.Node) error {
-	_, err := cs.CoreV1().Nodes().UpdateStatus(context.TODO(), node, metav1.UpdateOptions{})
+	_, err := cs.CoreV1().Nodes().UpdateStatus(node)
 	return err
 }
 
@@ -320,14 +325,14 @@ func InitTestMaster(t *testing.T, nsPrefix string, admission admission.Interface
 	}
 
 	// 2. Create kubeclient
-	testCtx.ClientSet = clientset.NewForConfigOrDie(
-		&restclient.Config{
-			QPS: -1, Host: s.URL,
-			ContentConfig: restclient.ContentConfig{
-				GroupVersion: &schema.GroupVersion{Group: "", Version: "v1"},
-			},
+	kubeConfig := restclient.KubeConfig{
+		QPS: -1, Host: s.URL,
+		ContentConfig: restclient.ContentConfig{
+			GroupVersion: &schema.GroupVersion{Group: "", Version: "v1"},
 		},
-	)
+	}
+	configs := restclient.NewAggregatedConfig(&kubeConfig)
+	testCtx.ClientSet = clientset.NewForConfigOrDie(configs)
 	return &testCtx
 }
 
@@ -379,16 +384,20 @@ func InitTestSchedulerWithOptions(
 	}
 	var err error
 	eventBroadcaster := events.NewBroadcaster(&events.EventSinkImpl{
-		Interface: testCtx.ClientSet.EventsV1beta1().Events(""),
+		Interface: testCtx.ClientSet.EventsV1beta1().EventsWithMultiTenancy(metav1.NamespaceAll, metav1.TenantAll),
 	})
 
 	if policy != nil {
 		opts = append(opts, scheduler.WithAlgorithmSource(CreateAlgorithmSourceFromPolicy(policy, testCtx.ClientSet)))
 	}
 	opts = append([]scheduler.Option{scheduler.WithBindTimeoutSeconds(600)}, opts...)
+
+	nodeInformers := make(map[string]coreinformers.NodeInformer, 1)
+	nodeInformers[rpId0] = testCtx.InformerFactory.Core().V1().Nodes()
 	testCtx.Scheduler, err = scheduler.New(
 		testCtx.ClientSet,
 		testCtx.InformerFactory,
+		nodeInformers,
 		podInformer,
 		profile.NewRecorderFactory(eventBroadcaster),
 		testCtx.Ctx.Done(),
@@ -402,7 +411,8 @@ func InitTestSchedulerWithOptions(
 	// set setPodInformer if provided.
 	if setPodInformer {
 		go podInformer.Informer().Run(testCtx.Scheduler.StopEverything)
-		cache.WaitForNamedCacheSync("scheduler", testCtx.Scheduler.StopEverything, podInformer.Informer().HasSynced)
+		//cache.WaitForNamedCacheSync("scheduler", testCtx.Scheduler.StopEverything, podInformer.Informer().HasSynced)
+		cache.WaitForCacheSync(testCtx.Scheduler.StopEverything, podInformer.Informer().HasSynced)
 	}
 
 	stopCh := make(chan struct{})
@@ -431,7 +441,7 @@ func CreateAlgorithmSourceFromPolicy(policy *schedulerapi.Policy, clientSet clie
 		Data:       map[string]string{schedulerapi.SchedulerPolicyConfigMapKey: policyString},
 	}
 	policyConfigMap.APIVersion = "v1"
-	clientSet.CoreV1().ConfigMaps(metav1.NamespaceSystem).Create(context.TODO(), &policyConfigMap, metav1.CreateOptions{})
+	clientSet.CoreV1().ConfigMaps(metav1.NamespaceSystem).Create(&policyConfigMap)
 
 	return schedulerapi.SchedulerAlgorithmSource{
 		Policy: &schedulerapi.SchedulerPolicySource{
@@ -458,7 +468,7 @@ func WaitForPodToSchedule(cs clientset.Interface, pod *v1.Pod) error {
 // PodScheduled checks if the pod has been scheduled
 func PodScheduled(c clientset.Interface, podNamespace, podName string) wait.ConditionFunc {
 	return func() (bool, error) {
-		pod, err := c.CoreV1().Pods(podNamespace).Get(context.TODO(), podName, metav1.GetOptions{})
+		pod, err := c.CoreV1().Pods(podNamespace).Get(podName, metav1.GetOptions{})
 		if err != nil {
 			// This could be a connection error so we want to retry.
 			return false, nil
