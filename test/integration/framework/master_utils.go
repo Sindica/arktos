@@ -30,7 +30,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/spec"
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	authauthenticator "k8s.io/apiserver/pkg/authentication/authenticator"
@@ -174,7 +174,7 @@ func startMasterOrDie(masterConfig *master.Config, incomingServer *httptest.Serv
 		masterConfig.GenericConfig.LoopbackClientConfig = restclient.NewAggregatedConfig(kubeConfig)
 	}
 
-	privilegedLoopbackToken := uuid.NewRandom().String()
+        privilegedLoopbackToken := uuid.New().String()
 
 	// TODO - performance test pick up multiple api server partition
 	for _, config := range masterConfig.GenericConfig.LoopbackClientConfig.GetAllConfigs() {
@@ -186,7 +186,7 @@ func startMasterOrDie(masterConfig *master.Config, incomingServer *httptest.Serv
 	tokens := make(map[string]*user.DefaultInfo)
 	tokens[privilegedLoopbackToken] = &user.DefaultInfo{
 		Name:   user.APIServerUser,
-		UID:    uuid.NewRandom().String(),
+		UID:    uuid.New().String(),
 		Groups: []string{user.SystemPrivilegedGroup},
 		Tenant: testTenant,
 	}
@@ -312,7 +312,7 @@ func DefaultEtcdOptions() *options.EtcdOptions {
 	// This causes the integration tests to exercise the etcd
 	// prefix code, so please don't change without ensuring
 	// sufficient coverage in other ways.
-	etcdOptions := options.NewEtcdOptions(storagebackend.NewDefaultConfig(uuid.New(), nil))
+	etcdOptions := options.NewEtcdOptions(storagebackend.NewDefaultConfig(uuid.New().String(), nil))
 	etcdOptions.StorageConfig.Transport.SystemClusterServerList = []string{GetEtcdURL()}
 	return etcdOptions
 }
@@ -394,7 +394,7 @@ func RunAMasterUsingServer(masterConfig *master.Config, s *httptest.Server, mast
 
 // SharedEtcd creates a storage config for a shared etcd instance, with a unique prefix.
 func SharedEtcd() *storagebackend.Config {
-	cfg := storagebackend.NewDefaultConfig(path.Join(uuid.New(), "registry"), nil)
+	cfg := storagebackend.NewDefaultConfig(path.Join(uuid.New().String(), "registry"), nil)
 	cfg.Transport.SystemClusterServerList = []string{GetEtcdURL()}
 	return cfg
 }
