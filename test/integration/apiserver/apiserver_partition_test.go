@@ -18,7 +18,7 @@ package apiserver
 
 import (
 	"fmt"
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 	apps "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -1273,7 +1273,7 @@ func setUpSingleApiserver(t *testing.T, begin, end string, serviceGroupId string
 }
 
 func generatedPrefix() string {
-	return path.Join(uuid.New(), "registry")
+	return path.Join(uuid.New().String(), "registry")
 }
 
 func createSinglePartitionConfig(t *testing.T, fileSuffix int, prefix, begin, end string) (configFilename string) {
