@@ -18,7 +18,6 @@ limitations under the License.
 package authenticatorfactory
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -94,7 +93,7 @@ func (c DelegatingAuthenticatorConfig) New() (authenticator.Request, *spec.Secur
 		if err != nil {
 			return nil, nil, err
 		}
-		cachingTokenAuth := cache.New(context.TODO(), tokenAuth, false, c.CacheTTL, c.CacheTTL)
+		cachingTokenAuth := cache.New(tokenAuth, false, c.CacheTTL, c.CacheTTL)
 		authenticators = append(authenticators, bearertoken.New(cachingTokenAuth), websocket.NewProtocolAuthenticator(cachingTokenAuth))
 
 		securityDefinitions["BearerToken"] = &spec.SecurityScheme{

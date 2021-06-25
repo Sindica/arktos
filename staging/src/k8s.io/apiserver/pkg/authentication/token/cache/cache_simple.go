@@ -18,7 +18,6 @@ limitations under the License.
 package cache
 
 import (
-	"context"
 	"time"
 
 	utilcache "k8s.io/apimachinery/pkg/util/cache"
@@ -29,10 +28,8 @@ type simpleCache struct {
 	cache *utilcache.Expiring
 }
 
-func newSimpleCache(ctx context.Context, clock clock.Clock) cache {
-	c := &simpleCache{cache: utilcache.NewExpiringWithClock(clock)}
-	go c.cache.Run(ctx)
-	return c
+func newSimpleCache(clock clock.Clock) cache {
+	return &simpleCache{cache: utilcache.NewExpiringWithClock(clock)}
 }
 
 func (c *simpleCache) get(key string) (*cacheRecord, bool) {

@@ -51,10 +51,7 @@ func TestCachedTokenAuthenticator(t *testing.T) {
 	})
 	fakeClock := utilclock.NewFakeClock(time.Now())
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	a := newWithClock(ctx, fakeAuth, true, time.Minute, 0, fakeClock)
+	a := newWithClock(fakeAuth, true, time.Minute, 0, fakeClock)
 
 	calledWithToken, resultUsers, resultOk, resultErr = []string{}, nil, false, nil
 	a.AuthenticateToken(context.Background(), "bad1")
@@ -128,10 +125,7 @@ func TestCachedTokenAuthenticatorWithAudiences(t *testing.T) {
 	})
 	fakeClock := utilclock.NewFakeClock(time.Now())
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	a := newWithClock(ctx, fakeAuth, true, time.Minute, 0, fakeClock)
+	a := newWithClock(fakeAuth, true, time.Minute, 0, fakeClock)
 
 	resultUsers["audAusertoken1"] = &user.DefaultInfo{Name: "user1"}
 	resultUsers["audBusertoken1"] = &user.DefaultInfo{Name: "user1-different"}
@@ -277,8 +271,6 @@ func (s *singleBenchmark) run(b *testing.B) {
 }
 
 func (s *singleBenchmark) bench(b *testing.B) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	// Simulate slowness, qps limit, external service limitation, etc
 	const maxInFlight = 40
 	chokepoint := make(chan struct{}, maxInFlight)
@@ -286,7 +278,6 @@ func (s *singleBenchmark) bench(b *testing.B) {
 	var lookups uint64
 
 	a := newWithClock(
-		ctx,
 		authenticator.TokenFunc(func(ctx context.Context, token string) (*authenticator.Response, bool, error) {
 			atomic.AddUint64(&lookups, 1)
 
