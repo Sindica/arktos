@@ -18,6 +18,7 @@ limitations under the License.
 package authenticator
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-openapi/spec"
@@ -194,7 +195,7 @@ func (config Config) New() (authenticator.Request, *spec.SecurityDefinitions, er
 		tokenAuth := tokenunion.New(tokenAuthenticators...)
 		// Optionally cache authentication results
 		if config.TokenSuccessCacheTTL > 0 || config.TokenFailureCacheTTL > 0 {
-			tokenAuth = tokencache.New(tokenAuth, true, config.TokenSuccessCacheTTL, config.TokenFailureCacheTTL)
+			tokenAuth = tokencache.New(context.TODO(), tokenAuth, true, config.TokenSuccessCacheTTL, config.TokenFailureCacheTTL)
 		}
 		authenticators = append(authenticators, bearertoken.New(tokenAuth), websocket.NewProtocolAuthenticator(tokenAuth))
 		securityDefinitions["BearerToken"] = &spec.SecurityScheme{
@@ -327,5 +328,5 @@ func newWebhookTokenAuthenticator(webhookConfigFile string, ttl time.Duration, i
 		return nil, err
 	}
 
-	return tokencache.New(webhookTokenAuthenticator, false, ttl, ttl), nil
+	return tokencache.New(context.TODO(), webhookTokenAuthenticator, false, ttl, ttl), nil
 }
