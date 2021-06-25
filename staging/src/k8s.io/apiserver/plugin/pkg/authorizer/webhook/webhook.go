@@ -95,7 +95,7 @@ func New(kubeConfigFile string, authorizedTTL, unauthorizedTTL time.Duration) (*
 func newWithBackoff(subjectAccessReview authorizationclient.SubjectAccessReviewInterface, authorizedTTL, unauthorizedTTL, initialBackoff time.Duration) (*WebhookAuthorizer, error) {
 	return &WebhookAuthorizer{
 		subjectAccessReview: subjectAccessReview,
-		responseCache:       cache.NewLRUExpireCache(1024),
+		responseCache:       cache.NewLRUExpireCache(8192),
 		authorizedTTL:       authorizedTTL,
 		unauthorizedTTL:     unauthorizedTTL,
 		initialBackoff:      initialBackoff,
