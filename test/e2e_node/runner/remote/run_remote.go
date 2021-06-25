@@ -40,7 +40,7 @@ import (
 	"k8s.io/kubernetes/test/e2e_node/remote"
 	"k8s.io/kubernetes/test/e2e_node/system"
 
-        "github.com/google/uuid"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v0.beta"

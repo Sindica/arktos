@@ -174,7 +174,7 @@ func startMasterOrDie(masterConfig *master.Config, incomingServer *httptest.Serv
 		masterConfig.GenericConfig.LoopbackClientConfig = restclient.NewAggregatedConfig(kubeConfig)
 	}
 
-        privilegedLoopbackToken := uuid.New().String()
+	privilegedLoopbackToken := uuid.New().String()
 
 	// TODO - performance test pick up multiple api server partition
 	for _, config := range masterConfig.GenericConfig.LoopbackClientConfig.GetAllConfigs() {
