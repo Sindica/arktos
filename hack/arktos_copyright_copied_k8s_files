@@ -31,6 +31,7 @@ staging/src/k8s.io/apimachinery/pkg/runtime/serializer/versioning/versioning.go
 staging/src/k8s.io/apimachinery/pkg/runtime/testing/cacheable_object.go
 staging/src/k8s.io/apimachinery/pkg/util/cache/expiring.go
 staging/src/k8s.io/apimachinery/pkg/util/cache/expiring_test.go
+staging/src/k8s.io/apiserver/pkg/authentication/token/cache/stats.go
 staging/src/k8s.io/apiserver/pkg/endpoints/discovery/util.go
 staging/src/k8s.io/apiserver/pkg/endpoints/filters/cachecontrol.go
 staging/src/k8s.io/apiserver/pkg/endpoints/filters/cachecontrol_test.go
