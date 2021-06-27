@@ -1,6 +1,5 @@
 /*
 Copyright 2018 The Kubernetes Authors.
-Copyright 2020 Authors of Arktos - file modified.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// File modified by cherrypick from kubernetes on 03/04/2021
 package internal_test
 
 import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"sigs.k8s.io/structured-merge-diff/v3/typed"
@@ -35,9 +32,7 @@ import (
 )
 
 var fakeSchema = prototesting.Fake{
-	Path: filepath.Join(
-		strings.Repeat(".."+string(filepath.Separator), 9),
-		"api", "openapi-spec", "swagger.json"),
+	Path: filepath.Join("testdata", "swagger.json"),
 }
 
 func TestTypeConverter(t *testing.T) {
