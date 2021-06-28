@@ -771,11 +771,12 @@ func (r *crdHandler) getOrCreateServingInfoFor(crd *apiextensions.CustomResource
 		}
 		if utilfeature.DefaultFeatureGate.Enabled(features.ServerSideApply) {
 			reqScope := *requestScopes[v.Name]
-			reqScope.FieldManager, err = fieldmanager.NewCRDFieldManager(
+			reqScope.FieldManager, err = fieldmanager.NewDefaultCRDFieldManager(
 				openAPIModels,
 				reqScope.Convertor,
 				reqScope.Defaulter,
-				reqScope.Kind.GroupVersion(),
+				reqScope.Creater,
+				reqScope.Kind,
 				reqScope.HubGroupVersion,
 				*crd.Spec.PreserveUnknownFields,
 			)
