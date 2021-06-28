@@ -38,33 +38,34 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
-    "nodeName": "19",
-    "podName": "20",
-    "podID": "21",
+    "nodeName": "20",
+    "podName": "21",
+    "podID": "22",
     "rebootAction": {
       "delayInSeconds": 896585016
     },
     "snapshotAction": {
-      "snapshotName": "22"
+      "snapshotName": "23"
     },
     "restoreAction": {
-      "snapshotID": "23"
+      "snapshotID": "24"
     }
   },
   "status": {
-    "error": "24",
-    "podName": "25",
-    "podID": "26",
+    "error": "25",
+    "podName": "26",
+    "podID": "27",
     "rebootStatus": {
       
     },
     "snapshotStatus": {
-      "snapshotID": "27"
+      "snapshotID": "28"
     },
     "restoreStatus": {
       "restoreSuccessful": true

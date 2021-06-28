@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -31,5 +32,5 @@ metadata:
   selfLink: "6"
   tenant: "4"
   uid: "7"
-serviceAddress: "20"
-storageClusterId: "19"
+serviceAddress: "21"
+storageClusterId: "20"

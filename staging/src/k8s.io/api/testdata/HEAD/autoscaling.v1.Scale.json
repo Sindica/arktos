@@ -38,7 +38,8 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
@@ -47,6 +48,6 @@
   },
   "status": {
     "replicas": 70007838,
-    "selector": "19"
+    "selector": "20"
   }
 }

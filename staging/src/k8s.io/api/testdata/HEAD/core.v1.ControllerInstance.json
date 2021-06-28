@@ -38,11 +38,12 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
-  "controllerType": "19",
+  "controllerType": "20",
   "controllerKey": -7716837448637516924,
   "workloadNum": 70007838,
   "isLocked": true

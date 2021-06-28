@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -36,7 +37,7 @@ spec:
   metrics:
   - external:
       metric:
-        name: "39"
+        name: "40"
         selector:
           matchExpressions:
           - key: n3-8d-0-5qty--4-p---u16-wv-i.84-n4f--139-295at-o7qff7-x--r7v66bm71u-n4f0/2_31.-.-yz-0-_p4mz--.I_f6kjsz-7lwY-Y93-x6bigm_-._q
@@ -52,11 +53,11 @@ spec:
         value: "82"
     object:
       describedObject:
-        apiVersion: "24"
-        kind: "22"
-        name: "23"
+        apiVersion: "25"
+        kind: "23"
+        name: "24"
       metric:
-        name: "25"
+        name: "26"
         selector:
           matchExpressions:
           - key: 816m59-dx8----i--5-8t36b0/D7r__.am6-4_WE-_JTrcd-2.-__E_Sv__26KX_R7
@@ -70,7 +71,7 @@ spec:
         value: "309"
     pods:
       metric:
-        name: "32"
+        name: "33"
         selector:
           matchExpressions:
           - key: w.__-___196-.dX_iv1H.__.h-J-M.9_T.q-o7.y-SQ.A
@@ -94,14 +95,14 @@ spec:
     type: 枊a8衍`Ĩɘ.蘯6ċV夸eɑeʤ脽ě
   minReplicas: 896585016
   scaleTargetRef:
-    apiVersion: "21"
-    kind: "19"
-    name: "20"
+    apiVersion: "22"
+    kind: "20"
+    name: "21"
 status:
   conditions:
   - lastTransitionTime: "2039-12-25T06:58:01Z"
-    message: "71"
-    reason: "70"
+    message: "72"
+    reason: "71"
     status: ɸĻo:{柯?B俋¬h`職铳s44矕Ƈ
     type: Ƚȿ醏g遧
   currentMetrics:
@@ -111,7 +112,7 @@ status:
         averageValue: "909"
         value: "108"
       metric:
-        name: "63"
+        name: "64"
         selector:
           matchExpressions:
           - key: 7pdn--j2---25/I._31-_I-A-_3b6
@@ -124,11 +125,11 @@ status:
         averageValue: "289"
         value: "861"
       describedObject:
-        apiVersion: "55"
-        kind: "53"
-        name: "54"
+        apiVersion: "56"
+        kind: "54"
+        name: "55"
       metric:
-        name: "46"
+        name: "47"
         selector:
           matchExpressions:
           - key: rR4_7FA.2
@@ -141,7 +142,7 @@ status:
         averageValue: "638"
         value: "485"
       metric:
-        name: "56"
+        name: "57"
         selector:
           matchExpressions:
           - key: 1q5--uk5mj-94-8134i5k6q6--5tu-tie4-7--gm4p-83.91z---883d-vj/z.-_Z4.A

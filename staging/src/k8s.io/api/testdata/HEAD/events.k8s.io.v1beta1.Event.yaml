@@ -1,11 +1,11 @@
-action: "21"
+action: "22"
 apiVersion: events.k8s.io/v1beta1
 deprecatedCount: 1804227960
 deprecatedFirstTimestamp: "2964-12-12T12:04:40Z"
 deprecatedLastTimestamp: "2452-08-27T22:01:15Z"
 deprecatedSource:
-  component: "39"
-  host: "40"
+  component: "40"
+  host: "41"
 eventTime: "2482-03-20T23:11:25.602224Z"
 kind: Event
 metadata:
@@ -23,6 +23,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -39,30 +40,30 @@ metadata:
   selfLink: "6"
   tenant: "4"
   uid: "7"
-note: "37"
-reason: "22"
+note: "38"
+reason: "23"
 regarding:
-  apiVersion: "26"
-  fieldPath: "28"
-  kind: "23"
-  name: "25"
-  namespace: "24"
-  resourceVersion: "27"
-  tenant: "29"
+  apiVersion: "27"
+  fieldPath: "29"
+  kind: "24"
+  name: "26"
+  namespace: "25"
+  resourceVersion: "28"
+  tenant: "30"
   uid: Ĩɘ.蘯6ċV夸eɑeʤ脽ěĂ
 related:
-  apiVersion: "33"
-  fieldPath: "35"
-  kind: "30"
-  name: "32"
-  namespace: "31"
-  resourceVersion: "34"
-  tenant: "36"
+  apiVersion: "34"
+  fieldPath: "36"
+  kind: "31"
+  name: "33"
+  namespace: "32"
+  resourceVersion: "35"
+  tenant: "37"
   uid: 蓏Ŋ
-reportingController: "19"
-reportingInstance: "20"
+reportingController: "20"
+reportingInstance: "21"
 series:
   count: -1971381490
   lastObservedTime: "2429-02-18T17:57:56.343118Z"
   state: 鯹)晿<
-type: "38"
+type: "39"

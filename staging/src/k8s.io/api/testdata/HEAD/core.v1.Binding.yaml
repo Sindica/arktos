@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -32,11 +33,11 @@ metadata:
   tenant: "4"
   uid: "7"
 target:
-  apiVersion: "22"
-  fieldPath: "24"
-  kind: "19"
-  name: "21"
-  namespace: "20"
-  resourceVersion: "23"
-  tenant: "25"
+  apiVersion: "23"
+  fieldPath: "25"
+  kind: "20"
+  name: "22"
+  namespace: "21"
+  resourceVersion: "24"
+  tenant: "26"
   uid: īqJ枊a8衍`Ĩɘ.蘯

@@ -16,6 +16,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -32,6 +33,6 @@ metadata:
   selfLink: "6"
   tenant: "4"
   uid: "7"
-rangeEnd: "20"
-rangeStart: "19"
-serviceGroupId: "21"
+rangeEnd: "21"
+rangeStart: "20"
+serviceGroupId: "22"

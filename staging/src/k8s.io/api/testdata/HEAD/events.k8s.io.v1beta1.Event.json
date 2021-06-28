@@ -38,7 +38,8 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
@@ -48,35 +49,35 @@
     "lastObservedTime": "2429-02-18T17:57:56.343118Z",
     "state": "鯹)晿\u003c"
   },
-  "reportingController": "19",
-  "reportingInstance": "20",
-  "action": "21",
-  "reason": "22",
+  "reportingController": "20",
+  "reportingInstance": "21",
+  "action": "22",
+  "reason": "23",
   "regarding": {
-    "kind": "23",
-    "namespace": "24",
-    "name": "25",
+    "kind": "24",
+    "namespace": "25",
+    "name": "26",
     "uid": "Ĩɘ.蘯6ċV夸eɑeʤ脽ěĂ",
-    "apiVersion": "26",
-    "resourceVersion": "27",
-    "fieldPath": "28",
-    "tenant": "29"
+    "apiVersion": "27",
+    "resourceVersion": "28",
+    "fieldPath": "29",
+    "tenant": "30"
   },
   "related": {
-    "kind": "30",
-    "namespace": "31",
-    "name": "32",
+    "kind": "31",
+    "namespace": "32",
+    "name": "33",
     "uid": "蓏Ŋ",
-    "apiVersion": "33",
-    "resourceVersion": "34",
-    "fieldPath": "35",
-    "tenant": "36"
+    "apiVersion": "34",
+    "resourceVersion": "35",
+    "fieldPath": "36",
+    "tenant": "37"
   },
-  "note": "37",
-  "type": "38",
+  "note": "38",
+  "type": "39",
   "deprecatedSource": {
-    "component": "39",
-    "host": "40"
+    "component": "40",
+    "host": "41"
   },
   "deprecatedFirstTimestamp": "2964-12-12T12:04:40Z",
   "deprecatedLastTimestamp": "2452-08-27T22:01:15Z",

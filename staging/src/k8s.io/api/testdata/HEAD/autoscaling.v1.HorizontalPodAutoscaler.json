@@ -38,15 +38,16 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
     "scaleTargetRef": {
-      "kind": "19",
-      "name": "20",
-      "apiVersion": "21"
+      "kind": "20",
+      "name": "21",
+      "apiVersion": "22"
     },
     "minReplicas": 896585016,
     "maxReplicas": -1971381490,

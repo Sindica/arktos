@@ -38,11 +38,12 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
-  "handler": "19",
+  "handler": "20",
   "overhead": {
     "podFixed": {
       "qJ枊a8衍`Ĩ": "652"

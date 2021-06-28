@@ -38,12 +38,13 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "value": -595102844,
   "globalDefault": true,
-  "description": "19",
+  "description": "20",
   "preemptionPolicy": "J枊a"
 }

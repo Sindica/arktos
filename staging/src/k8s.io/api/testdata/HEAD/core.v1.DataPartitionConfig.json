@@ -38,12 +38,13 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
-  "rangeStart": "19",
+  "rangeStart": "20",
   "isRangeStartValid": true,
-  "rangeEnd": "20",
-  "serviceGroupId": "21"
+  "rangeEnd": "21",
+  "serviceGroupId": "22"
 }

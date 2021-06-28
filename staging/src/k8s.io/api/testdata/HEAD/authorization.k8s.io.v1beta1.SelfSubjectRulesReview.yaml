@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -32,21 +33,21 @@ metadata:
   tenant: "4"
   uid: "7"
 spec:
-  namespace: "19"
+  namespace: "20"
 status:
-  evaluationError: "26"
+  evaluationError: "27"
   incomplete: true
   nonResourceRules:
   - nonResourceURLs:
-    - "25"
+    - "26"
     verbs:
-    - "24"
+    - "25"
   resourceRules:
   - apiGroups:
-    - "21"
-    resourceNames:
-    - "23"
-    resources:
     - "22"
+    resourceNames:
+    - "24"
+    resources:
+    - "23"
     verbs:
-    - "20"
+    - "21"

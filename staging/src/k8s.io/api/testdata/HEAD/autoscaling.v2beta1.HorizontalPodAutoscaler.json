@@ -38,15 +38,16 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
     "scaleTargetRef": {
-      "kind": "19",
-      "name": "20",
-      "apiVersion": "21"
+      "kind": "20",
+      "name": "21",
+      "apiVersion": "22"
     },
     "minReplicas": 896585016,
     "maxReplicas": -1971381490,
@@ -55,11 +56,11 @@
         "type": "枊a8衍`Ĩɘ.蘯6ċV夸eɑeʤ脽ě",
         "object": {
           "target": {
-            "kind": "22",
-            "name": "23",
-            "apiVersion": "24"
+            "kind": "23",
+            "name": "24",
+            "apiVersion": "25"
           },
-          "metricName": "25",
+          "metricName": "26",
           "targetValue": "79",
           "selector": {
             "matchLabels": {
@@ -78,7 +79,7 @@
           "averageValue": "954"
         },
         "pods": {
-          "metricName": "32",
+          "metricName": "33",
           "targetAverageValue": "538",
           "selector": {
             "matchLabels": {
@@ -101,7 +102,7 @@
           "targetAverageValue": "8"
         },
         "external": {
-          "metricName": "39",
+          "metricName": "40",
           "metricSelector": {
             "matchLabels": {
               "4kh6oqu-or---40--87-1wpl6-2-310e5hz/B._z": "G6t-2.-_-8w6"
@@ -128,11 +129,11 @@
         "type": " ïì«丯Ƙ枛牐ɺ皚|懥",
         "object": {
           "target": {
-            "kind": "46",
-            "name": "47",
-            "apiVersion": "48"
+            "kind": "47",
+            "name": "48",
+            "apiVersion": "49"
           },
-          "metricName": "49",
+          "metricName": "50",
           "currentValue": "55",
           "selector": {
             "matchLabels": {
@@ -148,7 +149,7 @@
           "averageValue": "14"
         },
         "pods": {
-          "metricName": "56",
+          "metricName": "57",
           "currentAverageValue": "878",
           "selector": {
             "matchLabels": {
@@ -168,7 +169,7 @@
           "currentAverageValue": "832"
         },
         "external": {
-          "metricName": "63",
+          "metricName": "64",
           "metricSelector": {
             "matchLabels": {
               "4_4--.-_Z4.LA3HVG93_._.I3.__-.0-z_z0sn_.hx_-a__0-8-.M-.-.-8vJ": "zET_..3dCv3j._.-_pP__up.2L_s-o779._-k-5___-Qq4"
@@ -190,8 +191,8 @@
         "type": "鯶縆",
         "status": "aTGÒ鵌Ē3",
         "lastTransitionTime": "2416-12-01T11:47:49Z",
-        "reason": "70",
-        "message": "71"
+        "reason": "71",
+        "message": "72"
       }
     ]
   }

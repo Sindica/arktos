@@ -38,7 +38,8 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
@@ -61,7 +62,7 @@
   "status": {
     "observedGeneration": -6582200896939805980,
     "disruptedPods": {
-      "25": "2250-04-18T21:52:38Z"
+      "26": "2250-04-18T21:52:38Z"
     },
     "disruptionsAllowed": -1942073618,
     "currentHealthy": -2037845840,

@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -35,4 +36,4 @@ spec:
   overhead:
     podFixed:
       qJ枊a8衍`Ĩ: "652"
-  runtimeHandler: "19"
+  runtimeHandler: "20"

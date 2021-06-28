@@ -38,7 +38,8 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
@@ -50,22 +51,22 @@
         "status": "ĿȊ甞谐颋ǅSǡƏS$+½",
         "lastProbeTime": "2508-05-13T03:16:18Z",
         "lastTransitionTime": "2514-12-25T07:56:30Z",
-        "reason": "19",
-        "message": "20"
+        "reason": "20",
+        "message": "21"
       }
     ],
-    "message": "21",
-    "reason": "22",
-    "nominatedNodeName": "23",
-    "hostIP": "24",
-    "podIP": "25",
+    "message": "22",
+    "reason": "23",
+    "nominatedNodeName": "24",
+    "hostIP": "25",
+    "podIP": "26",
     "initContainerStatuses": [
       {
-        "name": "26",
+        "name": "27",
         "state": {
           "waiting": {
-            "reason": "27",
-            "message": "28"
+            "reason": "28",
+            "message": "29"
           },
           "running": {
             "startedAt": "2331-08-10T01:52:12Z"
@@ -73,17 +74,17 @@
           "terminated": {
             "exitCode": 201313420,
             "signal": 18791896,
-            "reason": "29",
-            "message": "30",
+            "reason": "30",
+            "message": "31",
             "startedAt": "2668-04-28T12:06:02Z",
             "finishedAt": "2559-01-29T18:41:04Z",
-            "containerID": "31"
+            "containerID": "32"
           }
         },
         "lastState": {
           "waiting": {
-            "reason": "32",
-            "message": "33"
+            "reason": "33",
+            "message": "34"
           },
           "running": {
             "startedAt": "2942-12-08T14:55:02Z"
@@ -91,18 +92,18 @@
           "terminated": {
             "exitCode": -2068797460,
             "signal": -1161251830,
-            "reason": "34",
-            "message": "35",
+            "reason": "35",
+            "message": "36",
             "startedAt": "2568-01-21T11:26:44Z",
             "finishedAt": "2055-07-31T00:22:12Z",
-            "containerID": "36"
+            "containerID": "37"
           }
         },
         "ready": true,
         "restartCount": -1997863172,
-        "image": "37",
-        "imageID": "38",
-        "containerID": "39",
+        "image": "38",
+        "imageID": "39",
+        "containerID": "40",
         "resources": {
           "limits": {
             "rŎǀ朲^苣fƼ@hDrȮO励鹗塢ē ": "995"
@@ -115,11 +116,11 @@
     ],
     "containerStatuses": [
       {
-        "name": "40",
+        "name": "41",
         "state": {
           "waiting": {
-            "reason": "41",
-            "message": "42"
+            "reason": "42",
+            "message": "43"
           },
           "running": {
             "startedAt": "2394-05-07T11:47:12Z"
@@ -127,17 +128,17 @@
           "terminated": {
             "exitCode": -1737266499,
             "signal": -580241939,
-            "reason": "43",
-            "message": "44",
+            "reason": "44",
+            "message": "45",
             "startedAt": "2772-11-03T11:41:34Z",
             "finishedAt": "2392-12-09T15:37:55Z",
-            "containerID": "45"
+            "containerID": "46"
           }
         },
         "lastState": {
           "waiting": {
-            "reason": "46",
-            "message": "47"
+            "reason": "47",
+            "message": "48"
           },
           "running": {
             "startedAt": "2960-03-14T01:32:51Z"
@@ -145,18 +146,18 @@
           "terminated": {
             "exitCode": 1913946997,
             "signal": -1666422748,
-            "reason": "48",
-            "message": "49",
+            "reason": "49",
+            "message": "50",
             "startedAt": "1999-02-21T02:18:43Z",
             "finishedAt": "2532-04-05T11:18:55Z",
-            "containerID": "50"
+            "containerID": "51"
           }
         },
         "ready": true,
         "restartCount": 1747809671,
-        "image": "51",
-        "imageID": "52",
-        "containerID": "53",
+        "image": "52",
+        "imageID": "53",
+        "containerID": "54",
         "resources": {
           "limits": {
             "?øēƺ魋Ď儇击3ƆìQ": "39"
@@ -169,10 +170,10 @@
     ],
     "qosClass": "Ȉ\u003eŅ£趕ã/鈱$",
     "virtualMachineStatus": {
-      "name": "54",
-      "virtualMachineId": "55",
-      "imageId": "56",
-      "image": "57",
+      "name": "55",
+      "virtualMachineId": "56",
+      "imageId": "57",
+      "image": "58",
       "state": "议}ȧ外ĺ稥氹Ç|¶鎚¡ Ɠ",
       "lastTerminationState": "dɅ囥糷磩窮秳ķ蟒苾",
       "restartCount": -1253565243,
@@ -187,10 +188,10 @@
     },
     "nicStatuses": [
       {
-        "name": "58",
-        "portID": "59",
+        "name": "59",
+        "portID": "60",
         "state": "n(鲼ƳÐƣKʘńw:5塋訩塶\"=",
-        "reason": "60"
+        "reason": "61"
       }
     ]
   }

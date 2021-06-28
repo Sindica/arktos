@@ -38,18 +38,19 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
-  "operation": "19",
+  "operation": "20",
   "rebootParams": {
     "delayInSeconds": -595102844
   },
   "snapshotParams": {
-    "snapshotName": "20"
+    "snapshotName": "21"
   },
   "restoreParams": {
-    "snapshotID": "21"
+    "snapshotID": "22"
   }
 }

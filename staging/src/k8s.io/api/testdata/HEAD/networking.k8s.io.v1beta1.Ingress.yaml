@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -33,22 +34,22 @@ metadata:
   uid: "7"
 spec:
   backend:
-    serviceName: "19"
-    servicePort: "20"
+    serviceName: "20"
+    servicePort: "21"
   rules:
-  - host: "23"
+  - host: "24"
     http:
       paths:
       - backend:
-          serviceName: "25"
-          servicePort: "26"
-        path: "24"
+          serviceName: "26"
+          servicePort: "27"
+        path: "25"
   tls:
   - hosts:
-    - "21"
-    secretName: "22"
+    - "22"
+    secretName: "23"
 status:
   loadBalancer:
     ingress:
-    - hostname: "28"
-      ip: "27"
+    - hostname: "29"
+      ip: "28"

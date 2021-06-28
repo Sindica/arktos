@@ -38,35 +38,36 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
     "ports": [
       {
-        "name": "19",
+        "name": "20",
         "protocol": "@Hr鯹)晿",
         "port": 202283346,
-        "targetPort": "20",
+        "targetPort": "21",
         "nodePort": -474380055
       }
     ],
     "selector": {
-      "21": "22"
+      "22": "23"
     },
-    "clusterIP": "23",
+    "clusterIP": "24",
     "type": ".蘯6ċV夸",
     "externalIPs": [
-      "24"
+      "25"
     ],
-    "subnetID": "25",
+    "subnetID": "26",
     "sessionAffinity": "ɑ",
-    "loadBalancerIP": "26",
+    "loadBalancerIP": "27",
     "loadBalancerSourceRanges": [
-      "27"
+      "28"
     ],
-    "externalName": "28",
+    "externalName": "29",
     "externalTrafficPolicy": "ʤ脽ěĂ凗蓏Ŋ蛊ĉy緅縕\u003eŽ",
     "healthCheckNodePort": -1095807277,
     "publishNotReadyAddresses": true,
@@ -80,8 +81,8 @@
     "loadBalancer": {
       "ingress": [
         {
-          "ip": "29",
-          "hostname": "30"
+          "ip": "30",
+          "hostname": "31"
         }
       ]
     }

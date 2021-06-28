@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -32,21 +33,21 @@ metadata:
   tenant: "4"
   uid: "7"
 spec:
-  nodeName: "19"
-  podID: "21"
-  podName: "20"
+  nodeName: "20"
+  podID: "22"
+  podName: "21"
   rebootAction:
     delayInSeconds: 896585016
   restoreAction:
-    snapshotID: "23"
+    snapshotID: "24"
   snapshotAction:
-    snapshotName: "22"
+    snapshotName: "23"
 status:
-  error: "24"
-  podID: "26"
-  podName: "25"
+  error: "25"
+  podID: "27"
+  podName: "26"
   rebootStatus: {}
   restoreStatus:
     restoreSuccessful: true
   snapshotStatus:
-    snapshotID: "27"
+    snapshotID: "28"

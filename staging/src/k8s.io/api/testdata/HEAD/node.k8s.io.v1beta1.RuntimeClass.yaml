@@ -1,5 +1,5 @@
 apiVersion: node.k8s.io/v1beta1
-handler: "19"
+handler: "20"
 kind: RuntimeClass
 metadata:
   annotations:
@@ -16,6 +16,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"

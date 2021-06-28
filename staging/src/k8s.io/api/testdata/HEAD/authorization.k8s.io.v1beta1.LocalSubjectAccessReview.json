@@ -38,39 +38,40 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
     "resourceAttributes": {
-      "namespace": "19",
-      "verb": "20",
-      "group": "21",
-      "version": "22",
-      "resource": "23",
-      "subresource": "24",
-      "name": "25",
-      "tenant": "26"
+      "namespace": "20",
+      "verb": "21",
+      "group": "22",
+      "version": "23",
+      "resource": "24",
+      "subresource": "25",
+      "name": "26",
+      "tenant": "27"
     },
     "nonResourceAttributes": {
-      "path": "27",
-      "verb": "28"
+      "path": "28",
+      "verb": "29"
     },
-    "user": "29",
+    "user": "30",
     "group": [
-      "30"
+      "31"
     ],
     "extra": {
-      "31": [
-  "32"
+      "32": [
+  "33"
 ]
     },
-    "uid": "33"
+    "uid": "34"
   },
   "status": {
     "allowed": false,
-    "reason": "34",
-    "evaluationError": "35"
+    "reason": "35",
+    "evaluationError": "36"
   }
 }

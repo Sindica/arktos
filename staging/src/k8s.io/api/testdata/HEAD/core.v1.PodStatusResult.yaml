@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -35,29 +36,29 @@ status:
   conditions:
   - lastProbeTime: "2508-05-13T03:16:18Z"
     lastTransitionTime: "2514-12-25T07:56:30Z"
-    message: "20"
-    reason: "19"
+    message: "21"
+    reason: "20"
     status: ĿȊ甞谐颋ǅSǡƏS$+½
     type: ċV夸eɑeʤ脽ěĂ凗蓏Ŋ蛊ĉ
   containerStatuses:
-  - containerID: "53"
-    image: "51"
-    imageID: "52"
+  - containerID: "54"
+    image: "52"
+    imageID: "53"
     lastState:
       running:
         startedAt: "2960-03-14T01:32:51Z"
       terminated:
-        containerID: "50"
+        containerID: "51"
         exitCode: 1913946997
         finishedAt: "2532-04-05T11:18:55Z"
-        message: "49"
-        reason: "48"
+        message: "50"
+        reason: "49"
         signal: -1666422748
         startedAt: "1999-02-21T02:18:43Z"
       waiting:
-        message: "47"
-        reason: "46"
-    name: "40"
+        message: "48"
+        reason: "47"
+    name: "41"
     ready: true
     resources:
       limits:
@@ -69,36 +70,36 @@ status:
       running:
         startedAt: "2394-05-07T11:47:12Z"
       terminated:
-        containerID: "45"
+        containerID: "46"
         exitCode: -1737266499
         finishedAt: "2392-12-09T15:37:55Z"
-        message: "44"
-        reason: "43"
+        message: "45"
+        reason: "44"
         signal: -580241939
         startedAt: "2772-11-03T11:41:34Z"
       waiting:
-        message: "42"
-        reason: "41"
-  hostIP: "24"
+        message: "43"
+        reason: "42"
+  hostIP: "25"
   initContainerStatuses:
-  - containerID: "39"
-    image: "37"
-    imageID: "38"
+  - containerID: "40"
+    image: "38"
+    imageID: "39"
     lastState:
       running:
         startedAt: "2942-12-08T14:55:02Z"
       terminated:
-        containerID: "36"
+        containerID: "37"
         exitCode: -2068797460
         finishedAt: "2055-07-31T00:22:12Z"
-        message: "35"
-        reason: "34"
+        message: "36"
+        reason: "35"
         signal: -1161251830
         startedAt: "2568-01-21T11:26:44Z"
       waiting:
-        message: "33"
-        reason: "32"
-    name: "26"
+        message: "34"
+        reason: "33"
+    name: "27"
     ready: true
     resources:
       limits:
@@ -110,32 +111,32 @@ status:
       running:
         startedAt: "2331-08-10T01:52:12Z"
       terminated:
-        containerID: "31"
+        containerID: "32"
         exitCode: 201313420
         finishedAt: "2559-01-29T18:41:04Z"
-        message: "30"
-        reason: "29"
+        message: "31"
+        reason: "30"
         signal: 18791896
         startedAt: "2668-04-28T12:06:02Z"
       waiting:
-        message: "28"
-        reason: "27"
-  message: "21"
+        message: "29"
+        reason: "28"
+  message: "22"
   nicStatuses:
-  - name: "58"
-    portID: "59"
-    reason: "60"
+  - name: "59"
+    portID: "60"
+    reason: "61"
     state: n(鲼ƳÐƣKʘńw:5塋訩塶"=
-  nominatedNodeName: "23"
+  nominatedNodeName: "24"
   phase: īqJ枊a8衍`Ĩɘ.蘯
-  podIP: "25"
+  podIP: "26"
   qosClass: Ȉ>Ņ£趕ã/鈱$
-  reason: "22"
+  reason: "23"
   virtualMachineStatus:
-    image: "57"
-    imageId: "56"
+    image: "58"
+    imageId: "57"
     lastTerminationState: dɅ囥糷磩窮秳ķ蟒苾
-    name: "54"
+    name: "55"
     resources:
       limits:
         燴壩卄蓨MĮ?: "478"
@@ -143,4 +144,4 @@ status:
         ZƜ/C龷ȪÆl殛瓷雼浢Ü礽绅{囥: "721"
     restartCount: -1253565243
     state: 议}ȧ外ĺ稥氹Ç|¶鎚¡ Ɠ
-    virtualMachineId: "55"
+    virtualMachineId: "56"

@@ -1,5 +1,5 @@
 apiVersion: scheduling.k8s.io/v1beta1
-description: "19"
+description: "20"
 globalDefault: true
 kind: PriorityClass
 metadata:
@@ -17,6 +17,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"

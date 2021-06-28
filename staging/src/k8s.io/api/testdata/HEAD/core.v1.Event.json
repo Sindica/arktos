@@ -38,46 +38,47 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "involvedObject": {
-    "kind": "19",
-    "namespace": "20",
-    "name": "21",
+    "kind": "20",
+    "namespace": "21",
+    "name": "22",
     "uid": "īqJ枊a8衍`Ĩɘ.蘯",
-    "apiVersion": "22",
-    "resourceVersion": "23",
-    "fieldPath": "24",
-    "tenant": "25"
+    "apiVersion": "23",
+    "resourceVersion": "24",
+    "fieldPath": "25",
+    "tenant": "26"
   },
-  "reason": "26",
-  "message": "27",
+  "reason": "27",
+  "message": "28",
   "source": {
-    "component": "28",
-    "host": "29"
+    "component": "29",
+    "host": "30"
   },
   "firstTimestamp": "2958-05-23T21:23:39Z",
   "lastTimestamp": "2907-12-28T01:19:18Z",
   "count": -1492226764,
-  "type": "30",
+  "type": "31",
   "eventTime": "2530-04-08T07:06:28.046544Z",
   "series": {
     "count": 1266076158,
     "lastObservedTime": "2951-04-21T20:18:51.456715Z"
   },
-  "action": "31",
+  "action": "32",
   "related": {
-    "kind": "32",
-    "namespace": "33",
-    "name": "34",
+    "kind": "33",
+    "namespace": "34",
+    "name": "35",
     "uid": "ʤ脽ěĂ凗蓏Ŋ蛊ĉy緅縕\u003eŽ",
-    "apiVersion": "35",
-    "resourceVersion": "36",
-    "fieldPath": "37",
-    "tenant": "38"
+    "apiVersion": "36",
+    "resourceVersion": "37",
+    "fieldPath": "38",
+    "tenant": "39"
   },
-  "reportingComponent": "39",
-  "reportingInstance": "40"
+  "reportingComponent": "40",
+  "reportingInstance": "41"
 }

@@ -38,33 +38,34 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
   "spec": {
-    "token": "19",
+    "token": "20",
     "audiences": [
-      "20"
+      "21"
     ]
   },
   "status": {
     "user": {
-      "username": "21",
-      "uid": "22",
+      "username": "22",
+      "uid": "23",
       "groups": [
-        "23"
+        "24"
       ],
       "extra": {
-        "24": [
-  "25"
+        "25": [
+  "26"
 ]
       },
-      "tenant": "26"
+      "tenant": "27"
     },
     "audiences": [
-      "27"
+      "28"
     ],
-    "error": "28"
+    "error": "29"
   }
 }

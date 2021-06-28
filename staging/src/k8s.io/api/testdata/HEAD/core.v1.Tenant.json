@@ -38,7 +38,8 @@
       {
         "manager": "17",
         "operation": "鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]",
-        "apiVersion": "18"
+        "apiVersion": "18",
+        "fieldsType": "19"
       }
     ]
   },
@@ -46,7 +47,7 @@
     "finalizers": [
       "@Hr鯹)晿"
     ],
-    "storageClusterId": "19"
+    "storageClusterId": "20"
   },
   "status": {
     "phase": "`Ĩɘ.蘯6ċ"

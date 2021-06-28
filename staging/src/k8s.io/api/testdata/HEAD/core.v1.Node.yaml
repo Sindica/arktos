@@ -15,6 +15,7 @@ metadata:
     "8": "9"
   managedFields:
   - apiVersion: "18"
+    fieldsType: "19"
     manager: "17"
     operation: 鐊唊飙Ş-U圴÷a/ɔ}摁(湗Ć]
   name: "2"
@@ -34,22 +35,22 @@ metadata:
 spec:
   configSource:
     configMap:
-      kubeletConfigKey: "26"
-      name: "24"
-      namespace: "23"
-      resourceVersion: "25"
+      kubeletConfigKey: "27"
+      name: "25"
+      namespace: "24"
+      resourceVersion: "26"
       uid: 鮽ort昍řČ扷5ƗǸƢ6/ʕVŚ(Ŀ
-  externalID: "27"
-  podCIDR: "19"
-  providerID: "20"
+  externalID: "28"
+  podCIDR: "20"
+  providerID: "21"
   taints:
   - effect: qJ枊a8衍`Ĩ
-    key: "21"
-    value: "22"
+    key: "22"
+    value: "23"
   unschedulable: true
 status:
   addresses:
-  - address: "30"
+  - address: "31"
     type: ƕP喂ƈ
   allocatable:
     狱³-Ǐ忄*齧獚: "502"
@@ -58,54 +59,54 @@ status:
   conditions:
   - lastHeartbeatTime: "2659-11-29T13:57:54Z"
     lastTransitionTime: "2874-03-05T08:06:36Z"
-    message: "29"
-    reason: "28"
+    message: "30"
+    reason: "29"
     status: Ƽ@hDrȮO励鹗塢
     type: 狞夌碕ʂɭ
   config:
     active:
       configMap:
-        kubeletConfigKey: "50"
-        name: "48"
-        namespace: "47"
-        resourceVersion: "49"
+        kubeletConfigKey: "51"
+        name: "49"
+        namespace: "48"
+        resourceVersion: "50"
         uid: vǴ
     assigned:
       configMap:
-        kubeletConfigKey: "46"
-        name: "44"
-        namespace: "43"
-        resourceVersion: "45"
+        kubeletConfigKey: "47"
+        name: "45"
+        namespace: "44"
+        resourceVersion: "46"
         uid: 3ƆìQ喞艋涽託仭
-    error: "55"
+    error: "56"
     lastKnownGood:
       configMap:
-        kubeletConfigKey: "54"
-        name: "52"
-        namespace: "51"
-        resourceVersion: "53"
+        kubeletConfigKey: "55"
+        name: "53"
+        namespace: "52"
+        resourceVersion: "54"
         uid: ž琔n宂¬轚9Ȏ瀮昃2Ō¾\Ē
   daemonEndpoints:
     kubeletEndpoint:
       Port: -444792810
   images:
   - names:
-    - "41"
+    - "42"
     sizeBytes: -6782428676625842850
   nodeInfo:
-    architecture: "40"
-    bootID: "33"
-    containerRuntimeVersion: "36"
-    kernelVersion: "34"
-    kubeProxyVersion: "38"
-    kubeletVersion: "37"
-    machineID: "31"
-    operatingSystem: "39"
-    osImage: "35"
-    systemUUID: "32"
+    architecture: "41"
+    bootID: "34"
+    containerRuntimeVersion: "37"
+    kernelVersion: "35"
+    kubeProxyVersion: "39"
+    kubeletVersion: "38"
+    machineID: "32"
+    operatingSystem: "40"
+    osImage: "36"
+    systemUUID: "33"
   phase: ȎțêɘĲ斬³;Ơ歿
   volumesAttached:
-  - devicePath: "42"
+  - devicePath: "43"
     name: -譵ņ錕?øēƺ魋Ď
   volumesInUse:
   - ĴC浔Ű壝ž
