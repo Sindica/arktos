@@ -46,6 +46,10 @@ echo "... calling verify-release-tars" >&2
 verify-release-tars
 
 echo "... calling kube-up" >&2
+export KUBE_APISERVER_EXTRA_ARGS=${KUBE_APISERVER_EXTRA_ARGS:-}
+export KUBE_CONTROLLER_EXTRA_ARGS=${KUBE_CONTROLLER_EXTRA_ARGS:-}
+export KUBE_SCHEDULER_EXTRA_ARGS=${KUBE_SCHEDULER_EXTRA_ARGS:-}
+
 kube-up
 
 echo "... calling validate-cluster" >&2
