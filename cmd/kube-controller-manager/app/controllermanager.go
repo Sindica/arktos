@@ -213,6 +213,7 @@ func Run(c *config.CompletedConfig, stopCh <-chan struct{}) error {
 	saTokenControllerInitFunc := serviceAccountTokenControllerStarter{rootClientBuilder: rootClientBuilder}.startServiceAccountTokenController
 
 	run := func(ctx context.Context, startSATokenController InitFunc, initializersFunc ControllerInitializersFunc) {
+		klog.Infof("KCM rest client QPS %v, burst QPS %v", c.Kubeconfig.QPS, c.Kubeconfig.Burst)
 
 		controllerContext, err := CreateControllerContext(c, rootClientBuilder, clientBuilder, ctx.Done())
 		if err != nil {
