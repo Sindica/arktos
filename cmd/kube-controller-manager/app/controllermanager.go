@@ -225,6 +225,8 @@ func Run(c *config.CompletedConfig, stopCh <-chan struct{}) error {
 		} else {
 			clientBuilder = rootClientBuilder
 		}
+		klog.Infof("KCM rest client QPS %v, burst QPS %v", rootClientBuilder.ClientConfig.QPS, rootClientBuilder.ClientConfig.Burst)
+
 		controllerContext, err := CreateControllerContext(c, rootClientBuilder, clientBuilder, ctx.Done())
 		if err != nil {
 			klog.Fatalf("error building controller context: %v", err)

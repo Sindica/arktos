@@ -126,6 +126,10 @@ KUBE_CONTROLLERS="${KUBE_CONTROLLERS:-"*"}"
 # Audit policy
 AUDIT_POLICY_FILE=${AUDIT_POLICY_FILE:-""}
 
+# qps
+KUBE_API_QPS=${KUBE_API_QPS:-"20"}
+KUBE_API_BURST=${KUBE_API_BURST:-"40"}
+
 # sanity check for OpenStack provider
 if [ "${CLOUD_PROVIDER}" == "openstack" ]; then
     if [ "${CLOUD_CONFIG}" == "" ]; then
@@ -646,6 +650,8 @@ function start_controller_manager {
       --kubeconfig "${CERT_DIR}"/controller.kubeconfig \
       --use-service-account-credentials \
       --controllers="${KUBE_CONTROLLERS}" \
+      --kube-api-qps="${KUBE_API_QPS}" \
+      --kube-api-burst="${KUBE_API_BURST}" \
       --leader-elect=false \
       --cert-dir="${CERT_DIR}" \
       --master="https://${API_HOST}:${API_SECURE_PORT}" >"${CTLRMGR_LOG}" 2>&1 &
@@ -860,6 +866,8 @@ function start_kubescheduler {
       --leader-elect=false \
       --kubeconfig "${CERT_DIR}"/scheduler.kubeconfig \
       --feature-gates="${FEATURE_GATES}" \
+      --kube-api-qps="${KUBE_API_QPS}" \
+      --kube-api-burst="${KUBE_API_BURST}" \
       --master="https://${API_HOST}:${API_SECURE_PORT}" >"${SCHEDULER_LOG}" 2>&1 &
     SCHEDULER_PID=$!
 }
