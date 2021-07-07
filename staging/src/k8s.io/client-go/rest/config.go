@@ -246,6 +246,10 @@ type KubeConfig struct {
 	// UserAgent is an optional field that specifies the caller of this request.
 	UserAgent string
 
+	// DisableCompression bypasses automatic GZip compression requests to the
+	// server.
+	DisableCompression bool
+
 	// Transport may be used for custom HTTP behavior. This attribute may not
 	// be specified with the TLS client certificate options. Use WrapTransport
 	// to provide additional per-server middleware behavior.
@@ -707,12 +711,13 @@ func AnonymousClientConfig(configs *Config) *Config {
 				CAFile:     config.TLSClientConfig.CAFile,
 				CAData:     config.TLSClientConfig.CAData,
 			},
-			RateLimiter: config.RateLimiter,
-			UserAgent:   config.UserAgent,
-			QPS:         config.QPS,
-			Burst:       config.Burst,
-			Timeout:     config.Timeout,
-			Dial:        config.Dial,
+			RateLimiter:        config.RateLimiter,
+			UserAgent:          config.UserAgent,
+			DisableCompression: config.DisableCompression,
+			QPS:                config.QPS,
+			Burst:              config.Burst,
+			Timeout:            config.Timeout,
+			Dial:               config.Dial,
 		}
 		anonymousClientConfigs.AddConfig(kubeConfig)
 	}
@@ -748,14 +753,15 @@ func CopyConfig(config *KubeConfig) *KubeConfig {
 			KeyData:    config.TLSClientConfig.KeyData,
 			CAData:     config.TLSClientConfig.CAData,
 		},
-		UserAgent:     config.UserAgent,
-		Transport:     config.Transport,
-		WrapTransport: config.WrapTransport,
-		QPS:           config.QPS,
-		Burst:         config.Burst,
-		RateLimiter:   config.RateLimiter,
-		Timeout:       config.Timeout,
-		Dial:          config.Dial,
+		UserAgent:          config.UserAgent,
+		DisableCompression: config.DisableCompression,
+		Transport:          config.Transport,
+		WrapTransport:      config.WrapTransport,
+		QPS:                config.QPS,
+		Burst:              config.Burst,
+		RateLimiter:        config.RateLimiter,
+		Timeout:            config.Timeout,
+		Dial:               config.Dial,
 	}
 }
 
