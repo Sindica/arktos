@@ -459,6 +459,9 @@ func buildGenericConfig(
 	// TODO - api server connect to single ETCD for now
 	config := genericConfig.LoopbackClientConfig.GetConfig()
 	config.ContentConfig.ContentType = "application/vnd.kubernetes.protobuf"
+	// Disable compression for self-communication, since we are going to be
+	// on a fast local network
+	config.DisableCompression = true
 
 	kubeClientConfig := genericConfig.LoopbackClientConfig
 	clientgoExternalClient, err := clientgoclientset.NewForConfig(kubeClientConfig)

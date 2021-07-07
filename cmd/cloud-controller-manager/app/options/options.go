@@ -182,6 +182,7 @@ func (o *CloudControllerManagerOptions) ApplyTo(c *cloudcontrollerconfig.Config,
 	}
 
 	for _, kubeConfig := range c.Kubeconfigs.GetAllConfigs() {
+		kubeConfig.DisableCompression = true
 		kubeConfig.ContentConfig.ContentType = o.Generic.ClientConnection.ContentType
 		kubeConfig.QPS = o.Generic.ClientConnection.QPS
 		kubeConfig.Burst = int(o.Generic.ClientConnection.Burst)

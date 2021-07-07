@@ -372,7 +372,7 @@ func createClients(config componentbaseconfig.ClientConnectionConfiguration, mas
 	}
 
 	for _, kubeConfig := range kubeConfigs.GetAllConfigs() {
-		//kubeConfig.DisableCompression = true - DisableCompression is not supported in Arktos - TODO
+		kubeConfig.DisableCompression = true
 		kubeConfig.AcceptContentTypes = config.AcceptContentTypes
 		kubeConfig.ContentType = config.ContentType
 		kubeConfig.QPS = config.QPS
