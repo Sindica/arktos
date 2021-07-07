@@ -169,7 +169,7 @@ type FilterBound struct {
 // WaitForCacheSync waits for caches to populate.  It returns true if it was successful, false
 // if the controller should shutdown
 func WaitForCacheSync(stopCh <-chan struct{}, cacheSyncs ...InformerSynced) bool {
-	err := wait.PollUntil(syncedPollPeriod,
+	err := wait.PollImmediateUntil(syncedPollPeriod,
 		func() (bool, error) {
 			for _, syncFunc := range cacheSyncs {
 				if !syncFunc() {
