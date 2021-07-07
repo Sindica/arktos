@@ -62,9 +62,10 @@ func HTTPWrappersForConfig(config *KubeConfig, rt http.RoundTripper) (http.Round
 // TransportConfig converts a client config to an appropriate transport config.
 func (c *KubeConfig) TransportConfig() (*transport.Config, error) {
 	conf := &transport.Config{
-		UserAgent:     c.UserAgent,
-		Transport:     c.Transport,
-		WrapTransport: c.WrapTransport,
+		UserAgent:          c.UserAgent,
+		Transport:          c.Transport,
+		WrapTransport:      c.WrapTransport,
+		DisableCompression: c.DisableCompression,
 		TLS: transport.TLSConfig{
 			Insecure:   c.Insecure,
 			ServerName: c.ServerName,
