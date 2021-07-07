@@ -403,6 +403,7 @@ func (s KubeControllerManagerOptions) Config(allControllers []string, disabledBy
 	}
 
 	for _, kubeConfig := range kubeconfigs.GetAllConfigs() {
+		kubeConfig.DisableCompression = true
 		kubeConfig.ContentConfig.ContentType = s.Generic.ClientConnection.ContentType
 		kubeConfig.QPS = s.Generic.ClientConnection.QPS
 		kubeConfig.Burst = int(s.Generic.ClientConnection.Burst)
