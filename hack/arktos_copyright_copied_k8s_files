@@ -72,6 +72,7 @@ staging/src/k8s.io/client-go/metadata/metadatainformer/interface.go
 staging/src/k8s.io/client-go/rest/client.go
 staging/src/k8s.io/client-go/rest/fake/fake.go
 staging/src/k8s.io/client-go/rest/request_test.go
+staging/src/k8s.io/client-go/tools/cache/thread_safe_store_test.go
 staging/src/k8s.io/client-go/tools/events/fake.go
 staging/src/k8s.io/client-go/tools/leaderelection/resourcelock/multilock.go
 staging/src/k8s.io/client-go/util/flowcontrol/throttle.go
