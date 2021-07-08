@@ -51,13 +51,17 @@ func (*FakeController) LastSyncResourceVersion() string {
 
 func alwaysReady() bool { return true }
 
-func NewFromClient(kubeClient clientset.Interface, terminatedPodThreshold int) (*PodGCController, coreinformers.PodInformer, coreinformers.NodeInformer) {
+func NewFromClient(kubeClient clientset.Interface, terminatedPodThreshold int) (*PodGCController, coreinformers.PodInformer, map[string]coreinformers.NodeInformer) {
 	informerFactory := informers.NewSharedInformerFactory(kubeClient, controller.NoResyncPeriodFunc())
 	podInformer := informerFactory.Core().V1().Pods()
-	nodeInformer := informerFactory.Core().V1().Nodes()
-	controller := NewPodGC(kubeClient, podInformer, nodeInformer, terminatedPodThreshold)
+
+	nodeInformer1 := informerFactory.Core().V1().Nodes()
+	nodeInformers := make(map[string]coreinformers.NodeInformer)
+	nodeInformers[rpIdScaleup] = nodeInformer1
+
+	controller := NewPodGC(kubeClient, podInformer, nodeInformers, terminatedPodThreshold)
 	controller.podListerSynced = alwaysReady
-	return controller, podInformer, nodeInformer
+	return controller, podInformer, nodeInformers
 }
 
 func compareStringSetToList(set sets.String, list []string) bool {
@@ -133,7 +137,7 @@ func TestGCTerminated(t *testing.T) {
 		gcc, podInformer, _ := NewFromClient(client, test.threshold)
 		deletedPodNames := make([]string, 0)
 		var lock sync.Mutex
-		gcc.deletePod = func(_, name string) error {
+		gcc.deletePod = func(_, _, name string) error {
 			lock.Lock()
 			defer lock.Unlock()
 			deletedPodNames = append(deletedPodNames, name)
@@ -318,9 +322,9 @@ func TestGCOrphaned(t *testing.T) {
 				nodeList.Items = append(nodeList.Items, *node)
 			}
 			client := fake.NewSimpleClientset(nodeList)
-			gcc, podInformer, nodeInformer := NewFromClient(client, -1)
+			gcc, podInformer, nodeInformers := NewFromClient(client, -1)
 			for _, node := range test.initialInformerNodes {
-				nodeInformer.Informer().GetStore().Add(node)
+				nodeInformers[rpIdScaleup].Informer().GetStore().Add(node)
 			}
 			for _, pod := range test.pods {
 				podInformer.Informer().GetStore().Add(pod)
@@ -332,7 +336,7 @@ func TestGCOrphaned(t *testing.T) {
 
 			deletedPodNames := make([]string, 0)
 			var lock sync.Mutex
-			gcc.deletePod = func(_, name string) error {
+			gcc.deletePod = func(_, _, name string) error {
 				lock.Lock()
 				defer lock.Unlock()
 				deletedPodNames = append(deletedPodNames, name)
@@ -364,10 +368,10 @@ func TestGCOrphaned(t *testing.T) {
 				client.CoreV1().Nodes().Delete(node.Name, &metav1.DeleteOptions{})
 			}
 			for _, node := range test.addedInformerNodes {
-				nodeInformer.Informer().GetStore().Add(node)
+				nodeInformers[rpIdScaleup].Informer().GetStore().Add(node)
 			}
 			for _, node := range test.deletedInformerNodes {
-				nodeInformer.Informer().GetStore().Delete(node)
+				nodeInformers[rpIdScaleup].Informer().GetStore().Delete(node)
 			}
 
 			// Actual pod deletion
@@ -419,7 +423,7 @@ func TestGCUnscheduledTerminating(t *testing.T) {
 		gcc, podInformer, _ := NewFromClient(client, -1)
 		deletedPodNames := make([]string, 0)
 		var lock sync.Mutex
-		gcc.deletePod = func(_, name string) error {
+		gcc.deletePod = func(_, _, name string) error {
 			lock.Lock()
 			defer lock.Unlock()
 			deletedPodNames = append(deletedPodNames, name)

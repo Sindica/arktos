@@ -307,7 +307,6 @@ func startReplicationController(ctx ControllerContext) (http.Handler, bool, erro
 func startPodGCController(ctx ControllerContext) (http.Handler, bool, error) {
 	go podgc.NewPodGC(
 		ctx.ClientBuilder.ClientOrDie("pod-garbage-collector"),
-		ctx.ResourceProviderClients,
 		ctx.InformerFactory.Core().V1().Pods(),
 		ctx.ResourceProviderNodeInformers,
 		int(ctx.ComponentConfig.PodGCController.TerminatedPodGCThreshold),
