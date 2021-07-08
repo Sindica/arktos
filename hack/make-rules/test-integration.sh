@@ -30,6 +30,14 @@ source "${KUBE_ROOT}/hack/lib/init.sh"
 ALL_VERSIONS_CSV=$(IFS=',';echo "${KUBE_AVAILABLE_GROUP_VERSIONS[*]// /,}";IFS=$)
 KUBE_TEST_API_VERSIONS="${KUBE_TEST_API_VERSIONS:-${ALL_VERSIONS_CSV}}"
 
+# start the cache mutation detector by default so that cache mutators will be found
+KUBE_CACHE_MUTATION_DETECTOR="${KUBE_CACHE_MUTATION_DETECTOR:-true}"
+export KUBE_CACHE_MUTATION_DETECTOR
+
+# panic the server on watch decode errors since they are considered coder mistakes
+KUBE_PANIC_WATCH_DECODE_ERROR="${KUBE_PANIC_WATCH_DECODE_ERROR:-true}"
+export KUBE_PANIC_WATCH_DECODE_ERROR
+
 # Give integration tests longer to run by default.
 KUBE_TIMEOUT=${KUBE_TIMEOUT:--timeout=600s}
 KUBE_INTEGRATION_TEST_MAX_CONCURRENCY=${KUBE_INTEGRATION_TEST_MAX_CONCURRENCY:-"-1"}
