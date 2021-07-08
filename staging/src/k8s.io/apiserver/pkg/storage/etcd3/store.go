@@ -731,7 +731,7 @@ func (s *store) List(ctx context.Context, key, resourceVersion string, pred stor
 	}
 
 	// assert if the client is not 1
-	klog.V(2).Infof("length of clients: %v", len(clients))
+	//klog.V(2).Infof("length of clients: %v", len(clients))
 	if len(clients) != 1 {
 		panic("client is not 1")
 	}
