@@ -25,6 +25,38 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+function start-prometheus {
+  echo "configing prometheus-metrics"
+  cat <<EOF > /tmp/prometheus-metrics.yaml
+global:
+  scrape_interval: 10s
+scrape_configs:
+- job_name: collect-etcd
+  static_configs:
+  - targets: ['127.0.0.1:2382']
+- job_name: collect-k8s-api
+  static_configs:
+  - targets: ['127.0.0.1:8080']
+- job_name: collect-k8s-controllers
+  static_configs:
+  - targets: ['127.0.0.1:10252']
+- job_name: collect-k8s-sched
+  static_configs:
+  - targets: ['127.0.0.1:10251']
+EOF
+
+  cd /etc/srv/kubernetes
+
+  echo "downloading prometheus binary..."
+  local RELEASE="2.2.1"
+  wget https://github.com/prometheus/prometheus/releases/download/v${RELEASE}/prometheus-${RELEASE}.linux-amd64.tar.gz
+  tar xvf prometheus-${RELEASE}.linux-amd64.tar.gz
+  cd prometheus-${RELEASE}.linux-amd64/
+
+  echo "running prometheus service; log streamed to prometheus.log file"
+  nohup ./prometheus --config.file="/tmp/prometheus-metrics.yaml" --web.listen-address=":9090" --web.enable-admin-api > prometheus.log 2>&1 &
+}
+
 function setup-os-params {
   # Reset core_pattern. On GCI, the default core_pattern pipes the core dumps to
   # /sbin/crash_reporter which is more restrictive in saving crash dumps. So for
@@ -2898,6 +2930,9 @@ function main() {
     start-cluster-autoscaler
     start-lb-controller
     update-legacy-addon-node-labels &
+
+    echo "starting prometheus and scraping metrics from etcd & API server..."
+    start-prometheus
   else
     if [[ "${KUBE_PROXY_DAEMONSET:-}" != "true" ]]; then
       start-kube-proxy
@@ -2909,6 +2944,7 @@ function main() {
   reset-motd
   prepare-mounter-rootfs
   modprobe configs
+
   echo "Done for the configuration for kubernetes"
 }
 

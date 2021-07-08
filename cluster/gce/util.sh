@@ -1126,6 +1126,7 @@ function build-linux-kube-env {
   rm -f ${file}
   cat >$file <<EOF
 CLUSTER_NAME: $(yaml-quote ${CLUSTER_NAME})
+ENABLE_APISERVER_INSECURE_PORT: $(yaml-quote ${ENABLE_APISERVER_INSECURE_PORT:-true})
 ENV_TIMESTAMP: $(yaml-quote $(date -u +%Y-%m-%dT%T%z))
 INSTANCE_PREFIX: $(yaml-quote ${INSTANCE_PREFIX})
 NODE_INSTANCE_PREFIX: $(yaml-quote ${NODE_INSTANCE_PREFIX})
@@ -2697,6 +2698,12 @@ function create-etcd-apiserver-certs {
 
 function create-master() {
   echo "Starting master and configuring firewalls"
+  gcloud compute firewall-rules create "${MASTER_NAME}-prometheus" \
+    --project "${NETWORK_PROJECT}" \
+    --network "${NETWORK}" \
+    --source-ranges "0.0.0.0/0" \
+    --allow tcp:9090 &
+
   gcloud compute firewall-rules create "${MASTER_NAME}-https" \
     --project "${NETWORK_PROJECT}" \
     --network "${NETWORK}" \
@@ -3612,6 +3619,8 @@ function kube-down() {
   if [[ "${REMAINING_MASTER_COUNT}" -eq 0 ]]; then
     # Delete firewall rule for the master, etcd servers, and nodes.
     delete-firewall-rules "${MASTER_NAME}-https" "${MASTER_NAME}-etcd" "${NODE_TAG}-all" "${MASTER_NAME}-konnectivity-server"
+    delete-firewall-rules "${MASTER_NAME}-prometheus"
+
     # Delete the master's reserved IP
     if gcloud compute addresses describe "${MASTER_NAME}-ip" --region "${REGION}" --project "${PROJECT}" &>/dev/null; then
       gcloud compute addresses delete \
