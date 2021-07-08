@@ -49,11 +49,10 @@ const (
 	quarantineTime = 40 * time.Second
 )
 
+const rpIdScaleup = "0"
+
 type PodGCController struct {
 	kubeClient clientset.Interface
-
-	// all clients to list nodes it cares about, particularly including the current TP client
-	kubeClientForNodes map[string]clientset.Interface
 
 	podLister         corelisters.PodLister
 	podListerSynced   cache.InformerSynced
@@ -66,7 +65,7 @@ type PodGCController struct {
 	terminatedPodThreshold int
 }
 
-func NewPodGC(kubeClient clientset.Interface, rpClients map[string]clientset.Interface, podInformer coreinformers.PodInformer, nodeInformers map[string]coreinformers.NodeInformer, terminatedPodThreshold int) *PodGCController {
+func NewPodGC(kubeClient clientset.Interface, podInformer coreinformers.PodInformer, nodeInformers map[string]coreinformers.NodeInformer, terminatedPodThreshold int) *PodGCController {
 	if kubeClient != nil && kubeClient.CoreV1().RESTClient().GetRateLimiter() != nil {
 		metrics.RegisterMetricAndTrackRateLimiterUsage("gc_controller", kubeClient.CoreV1().RESTClient().GetRateLimiter())
 	}
@@ -80,13 +79,6 @@ func NewPodGC(kubeClient clientset.Interface, rpClients map[string]clientset.Int
 			klog.Infof("PodGC is force deleting Pod: %v/%v/%v", tenant, namespace, name)
 			return kubeClient.CoreV1().PodsWithMultiTenancy(namespace, tenant).Delete(name, metav1.NewDeleteOptions(0))
 		},
-	}
-
-	// key "0" is special case for TP client itself
-	// todo: avoid using magic literal "0"
-	gcc.kubeClientForNodes = map[string]clientset.Interface{"0": kubeClient}
-	for key, value := range rpClients {
-		gcc.kubeClientForNodes[key] = value
 	}
 
 	gcc.nodeListers, gcc.nodeListersSynced = nodeutil.GetNodeListersAndSyncedFromNodeInformers(nodeInformers)
