@@ -309,6 +309,7 @@ func startPodGCController(ctx ControllerContext) (http.Handler, bool, error) {
 		ctx.ClientBuilder.ClientOrDie("pod-garbage-collector"),
 		ctx.ResourceProviderClients,
 		ctx.InformerFactory.Core().V1().Pods(),
+		ctx.ResourceProviderNodeInformers,
 		int(ctx.ComponentConfig.PodGCController.TerminatedPodGCThreshold),
 	).Run(ctx.Stop)
 	return nil, true, nil

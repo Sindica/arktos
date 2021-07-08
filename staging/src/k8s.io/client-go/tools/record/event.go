@@ -196,7 +196,7 @@ func (eventBroadcaster *eventBroadcasterImpl) StartRecordingToSink(sink EventSin
 }
 
 func (e *eventBroadcasterImpl) Shutdown() {
-        e.Broadcaster.Shutdown()
+	e.Broadcaster.Shutdown()
 }
 
 func recordToSink(sink EventSink, event *v1.Event, eventCorrelator *EventCorrelator, randGen *rand.Rand, sleepDuration time.Duration) {
