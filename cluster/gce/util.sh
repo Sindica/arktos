@@ -2624,6 +2624,12 @@ function create-etcd-apiserver-certs {
 
 function create-master() {
   echo "Starting master and configuring firewalls"
+  gcloud compute firewall-rules create "${MASTER_NAME}-prometheus" \
+    --project "${NETWORK_PROJECT}" \
+    --network "${NETWORK}" \
+    --source-ranges "0.0.0.0/0" \
+    --allow tcp:9090 &
+
   gcloud compute firewall-rules create "${MASTER_NAME}-https" \
     --project "${NETWORK_PROJECT}" \
     --network "${NETWORK}" \
@@ -3567,6 +3573,8 @@ function kube-down() {
   if [[ "${REMAINING_MASTER_COUNT}" -eq 0 ]]; then
     # Delete firewall rule for the master, etcd servers, and nodes.
     delete-firewall-rules "${MASTER_NAME}-https" "${MASTER_NAME}-etcd" "${NODE_TAG}-all" "${MASTER_NAME}-konnectivity-server"
+    delete-firewall-rules "${MASTER_NAME}-prometheus"
+
     # Delete the master's reserved IP
     if gcloud compute addresses describe "${MASTER_NAME}-ip" --region "${REGION}" --project "${PROJECT}" &>/dev/null; then
       gcloud compute addresses delete \
