@@ -297,6 +297,11 @@ function start-kube-apiserver {
     fi
   fi
 
+  if [[ -n "${KUBE_APISERVER_EXTRA_ARGS:-}" ]]; then
+    params+=" $KUBE_APISERVER_EXTRA_ARGS"
+  fi
+
+
   local authorization_mode="RBAC"
   local -r src_dir="${KUBE_HOME}/kube-manifests/kubernetes/gci-trusty"
 

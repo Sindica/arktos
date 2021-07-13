@@ -161,7 +161,7 @@ func (sched *Scheduler) onCSINodeUpdate(oldObj, newObj interface{}) {
 
 func (sched *Scheduler) addPodToSchedulingQueue(obj interface{}) {
 	pod := obj.(*v1.Pod)
-	klog.V(3).InfoS("Add event for unscheduled pod", "pod", klog.KObj(pod))
+	klog.V(2).InfoS("Add event for unscheduled pod", "pod", klog.KObj(pod))
 	if err := sched.SchedulingQueue.Add(pod); err != nil {
 		utilruntime.HandleError(fmt.Errorf("unable to queue %T: %v", obj, err))
 	}
